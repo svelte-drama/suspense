@@ -1,0 +1,15 @@
+{
+  "name": "@jamcart/suspense-demo",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "snowpack dev",
+    "build": "snowpack build"
+  },
+  "devDependencies": {
+    "@jamcart/suspense": "^0.1.0",
+    "@snowpack/plugin-svelte": "^3.5.2",
+    "snowpack": "^3.1.0-pre.11",
+    "svelte": "^3.35.0",
+    "svelte-hmr": "^0.12.9"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@jamcart/suspense",
+  "description": "Put Svelte in Suspense",
+  "license": "0BSD",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./suspense.svelte",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "svelte": "^3.35.0"
+  }
+}
