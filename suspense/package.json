@@ -2,7 +2,7 @@
   "name": "@jamcart/suspense",
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "exports": {
     ".": "./suspense.svelte",
     "./package.json": "./package.json"
