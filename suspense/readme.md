@@ -79,6 +79,7 @@ const request = fetch('/my-api').then(response => response.json())
 ## Limitations
 
 * [Intro transitions](https://svelte.dev/docs#transition_fn) will not work as expected on elements inside the default slot.  Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions.
+* SSR will display a blank component.  `<Suspense>` components are initialized as empty initially to avoid flahses of content as the underlying promises regiser and resolve.
 * `createSuspense` operates at component boundaries.  The following example causes the parent of "my-component.svelte" to suspend, not the `<Suspense>` block inside of it, despite initial appearances:
 
   ```html

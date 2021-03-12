@@ -26,12 +26,12 @@ const ERROR = 2
 const READY = 3
 
 let error = null
-let state = INIT
+let state = INIT // FIXME: This needs to set to LOADING for SSR
 let pending = 0
 
 updateState()
 
-export function suspend (promise) {
+export function suspend (promise = undefined) {
   let once = true
   pending += 1
   updateState()
@@ -53,7 +53,7 @@ export function suspend (promise) {
     }
   }
 
-  if (!promise) {
+  if (promise === undefined) {
     return { resolve, reject }
   }
 
@@ -85,7 +85,6 @@ function updateState () {
     wait(100).then(update)
   }
 }
-
 
 function wait (timeout) {
   return new Promise(resolve => setTimeout(resolve, timeout))
