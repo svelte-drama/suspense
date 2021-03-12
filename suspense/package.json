@@ -9,5 +9,14 @@
   },
   "peerDependencies": {
     "svelte": "^3.35.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JamCart/suspense",
+    "directory": "suspense"
+  },
+  "keywords": [
+    "svelte",
+    "suspense"
+  ]
 }

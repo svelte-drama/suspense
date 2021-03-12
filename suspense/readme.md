@@ -51,7 +51,7 @@ Delays loading under either `resolve`, indicating success, or `reject`, throwing
 
 ### Example
 
-This is cause the parent `<Suspense>` container to display loading until *all* images have finished loading.
+This example causes the parent `<Suspense>` container to display loading until *all* images have finished loading.
 
 ```html
 // my-component.svelte
