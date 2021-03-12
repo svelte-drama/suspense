@@ -31,7 +31,7 @@ let pending = 0
 
 updateState()
 
-function suspend (promise) {
+export function suspend (promise) {
   let once = true
   pending += 1
   updateState()
@@ -53,19 +53,20 @@ function suspend (promise) {
     }
   }
 
-  if (promise) {
-    return promise
-      .then(value => {
-        resolve()
-        return value
-      })
-      .catch(error => {
-        reject(error)
-        throw error
-      })
-  } else {
+  if (!promise) {
     return { resolve, reject }
   }
+
+  return (async function () {
+    try {
+      const result = await promise
+      resolve()
+      return result
+    } catch (e) {
+      reject(e)
+      throw e
+    }
+  })()
 }
 
 function updateState () {
@@ -73,6 +74,8 @@ function updateState () {
 
   function update() {
     if (state === ERROR) return
+    // TODO: Should we allow components to go from READY to LOADING?
+    // The UX is pretty awful on every example I've tried.
     state = pending ? LOADING : READY
   }
 
@@ -98,5 +101,5 @@ setContext(CONTEXT, suspend)
 {/if}
 
 <div hidden={ state !== READY }>
-  <slot></slot>
+  <slot { suspend }></slot>
 </div>

@@ -17,14 +17,17 @@ When requesting asynchronous data, a typical pattern is for a parent component t
 ```html
 <script>
 import Suspense from '@jamcart/suspense'
-import MyComponent from './my-component.svlete'
+const MyComponent = import('./my-component.svelte').then(m => m.default)
 </script>
 
-<Suspense>
+<Suspense let:suspend>
   <div slot="loading">Loading...</div>
   <div slot="error" let:error>Error: { error?.message || error }</div>
 
-  <MyComponent />
+  <h1>My Component</h1>
+  {#await suspend(MyComponent) then MyComponent}
+    <MyComponent />
+  {/await}
 </Suspense>
 ```
 
@@ -59,8 +62,7 @@ This example causes the parent `<Suspense>` container to display loading until *
 import { createSuspense } from '@jamcart/suspense'
 const suspend = createSuspense()
 
-const request = fetch('/my-api')
-  .then(response => response.json())
+const request = fetch('/my-api').then(response => response.json())
 </script>
 
 {#await suspense(request) then data}
@@ -73,3 +75,39 @@ const request = fetch('/my-api')
   </ul>
 {/await}
 ```
+
+## Limitations
+
+* [Intro transitions](https://svelte.dev/docs#transition_fn) will not work as expected on elements inside the default slot.  Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions.
+* `createSuspense` operates at component boundaries.  The following example causes the parent of "my-component.svelte" to suspend, not the `<Suspense>` block inside of it, despite initial appearances:
+
+  ```html
+  <script>
+    import getData from './get-data'
+    import Suspense, { createSuspense } from '@jamcart/suspense'
+    const suspend = createSuspense()
+    const request = getData()
+  </script>
+
+  <Suspense>
+    {#await suspend(request) then data}
+      { JSON.stringify(data) }
+    {/await}
+  </Suspense>
+  ```
+
+  This, however, will work as it looks:
+
+  ```html
+  <script>
+    import getData from './get-data'
+    import Suspense from '@jamcart/suspense'
+    const request = getData()
+  </script>
+
+  <Suspense let:suspend>
+    {#await suspend(request) then data}
+      { JSON.stringify(data) }
+    {/await}
+  </Suspense>
+  ```
