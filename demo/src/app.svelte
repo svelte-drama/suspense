@@ -6,7 +6,7 @@ import Suspense from '@jamcart/suspense'
 
 <h1>Top 100 Albums from iTunes</h1>
 <Suspense>
-  <p slot="error">Error!</p>
+  <p slot="error" let:error>Error! { error }</p>
   <Loading slot="loading" />
 
   <AlbumList />

@@ -25,6 +25,7 @@ const LOADING = 1
 const ERROR = 2
 const READY = 3
 
+let error = null
 let state = INIT
 let pending = 0
 
@@ -43,9 +44,10 @@ function suspend (promise) {
     }
   }
 
-  function reject () {
+  function reject (err) {
     if (once) {
       once = false
+      error = err
       pending -= 1
       state = ERROR
     }
@@ -58,7 +60,7 @@ function suspend (promise) {
         return value
       })
       .catch(error => {
-        reject()
+        reject(error)
         throw error
       })
   } else {
@@ -92,7 +94,7 @@ setContext(CONTEXT, suspend)
 {#if state === LOADING}
   <slot name="loading"></slot>
 {:else if state === ERROR}
-  <slot name="error"></slot>
+  <slot name="error" { error }></slot>
 {/if}
 
 <div hidden={ state !== READY }>

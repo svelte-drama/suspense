@@ -11,7 +11,7 @@ When requesting asynchronous data, a typical pattern is for a parent component t
 `<Suspense>` provides three slots, only one of which will be displayed at a time.  All three are optional.
 
 - *loading*: If there any pending requests, this slot will be displayed.
-- *error*: Once any request fails, this slot is displayed.  The error is unassumed to be unrecoverable and this instance will no longer update its status.
+- *error*: Once any request fails, this slot is displayed.  The error is unassumed to be unrecoverable and this instance will no longer update its status.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`. 
 - *default*: After all children have finished loading data, display this.
 
 ```html
@@ -22,7 +22,7 @@ import MyComponent from './my-component.svlete'
 
 <Suspense>
   <div slot="loading">Loading...</div>
-  <div slot="error">Error</div>
+  <div slot="error" let:error>Error: { error?.message || error }</div>
 
   <MyComponent />
 </Suspense>
