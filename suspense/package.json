@@ -1,10 +1,12 @@
 {
   "name": "@jamcart/suspense",
   "description": "Put Svelte in Suspense",
+  "type": "module",
   "license": "0BSD",
-  "version": "0.1.1",
+  "version": "0.1.2",
+  "main": "./index.js",
   "exports": {
-    ".": "./suspense.svelte",
+    ".": "./index.js",
     "./package.json": "./package.json"
   },
   "peerDependencies": {
