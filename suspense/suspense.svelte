@@ -1,7 +1,7 @@
 <script context="module">
 import { getContext } from 'svelte'
 
-const CONTEXT = '7ty_suspense'
+const CONTEXT = {}
 
 export function createSuspense() {
   function suspend (promise) {

@@ -11,7 +11,7 @@ When requesting asynchronous data, a typical pattern is for a parent component t
 `<Suspense>` provides three slots, only one of which will be displayed at a time.  All three are optional.
 
 - *loading*: If there any pending requests, this slot will be displayed.
-- *error*: Once any request fails, this slot is displayed.  The error is unassumed to be unrecoverable and this instance will no longer update its status.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`. 
+- *error*: Once any request fails, this slot is displayed.  The error is assumed to be unrecoverable and this instance will no longer update its status.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`. 
 - *default*: After all children have finished loading data, display this.
 
 ```html
@@ -78,7 +78,7 @@ const request = fetch('/my-api').then(response => response.json())
 
 ## Limitations
 
-* [Intro transitions](https://svelte.dev/docs#transition_fn) will not work as expected on elements inside the default slot.  Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions.
+* [Intro transitions](https://svelte.dev/docs#transition_fn) will not work as expected on elements inside the default slot.  Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions prematurely.
 * SSR will display a blank component.  `<Suspense>` components are initialized as empty initially to avoid flahses of content as the underlying promises regiser and resolve.
 * `createSuspense` operates at component boundaries.  The following example causes the parent of "my-component.svelte" to suspend, not the `<Suspense>` block inside of it, despite initial appearances:
 
