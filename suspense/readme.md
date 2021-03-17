@@ -14,15 +14,19 @@ When requesting asynchronous data, a typical pattern is for a parent component t
 - *error*: Once any request fails, this slot is displayed.  The error is assumed to be unrecoverable and this instance will no longer update its status.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`. 
 - *default*: After all children have finished loading data, display this.
 
+Two events are availabe:
+- *on:error*: Triggers after any promise given to `suspend` is rejected.  The original error is passed as part of `event.detail`.
+- *on:load*:  Triggers after the first time the components inside the `<Suspense>` block finish loading.
+
 ```html
 <script>
 import Suspense from '@jamcart/suspense'
 const MyComponent = import('./my-component.svelte').then(m => m.default)
 </script>
 
-<Suspense let:suspend>
-  <div slot="loading">Loading...</div>
-  <div slot="error" let:error>Error: { error?.message || error }</div>
+<Suspense let:suspend on:error={ e => console.error(e.details) } on:load={ () => console.log("loaded") }>
+  <p slot="loading">Loading...</p>
+  <p slot="error" let:error>Error: { error?.message || error }</p>
 
   <h1>My Component</h1>
   {#await suspend(MyComponent) then MyComponent}
@@ -84,7 +88,7 @@ const request = fetch('/my-api').then(response => response.json())
 
   ```html
   <script>
-    import getData from './get-data'
+    import getData from './get-data.js'
     import Suspense, { createSuspense } from '@jamcart/suspense'
     const suspend = createSuspense()
     const request = getData()
@@ -101,7 +105,7 @@ const request = fetch('/my-api').then(response => response.json())
 
   ```html
   <script>
-    import getData from './get-data'
+    import getData from './get-data.js'
     import Suspense from '@jamcart/suspense'
     const request = getData()
   </script>
