@@ -3,7 +3,7 @@ import { Suspense } from '@jamcart/suspense'
 import Friends from './friends.svelte'
 </script>
 
-<nav>
+<nav class="fade-in">
   <Suspense>
     <h1>Navigation</h1>
   

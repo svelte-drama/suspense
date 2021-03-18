@@ -1,3 +1,4 @@
+import path from 'path'
 import svelte from '@svitejs/vite-plugin-svelte'
 
 /**
@@ -5,6 +6,10 @@ import svelte from '@svitejs/vite-plugin-svelte'
  */
 const config = {
   root: './src',
+  build: {
+    emptyOutDir: true,
+    outDir: path.resolve('./public')
+  },
   plugins: [svelte()]
 }
 
