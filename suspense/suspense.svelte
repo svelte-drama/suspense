@@ -19,19 +19,34 @@ export function createSuspense() {
 
 <script>
 import { createEventDispatcher, setContext } from 'svelte'
+import { writable } from 'svelte/store'
+import { CONTEXT as LIST_CONTEXT, STATUS as LIST_STATUS } from './suspense-list.svelte'
 const dispatch = createEventDispatcher()
 
-const INIT = 0
-const LOADING = 1
-const ERROR = 2
-const READY = 3
+const STATUS = {
+  INIT: 0,
+  LOADING: 1,
+  ERROR: 2,
+  READY: 3
+}
 
 let error = null
-let state = INIT // FIXME: This needs to set to LOADING for SSR
 let pending = 0
+let state = STATUS.INIT // FIXME: This needs to set to LOADING for SSR
 export let timeout = 50
 
+const register = getContext(LIST_CONTEXT)
+const {
+  onReady = () => {},
+  status: list_status = writable(LIST_STATUS.READY)
+} = register?.() ?? {}
+setContext(LIST_CONTEXT)
+
+setContext(CONTEXT, suspend)
+
 updateState()
+
+/* ----- */
 
 export function suspend (promise = null, { timeout } = {}) {
   let once = true
@@ -51,7 +66,7 @@ export function suspend (promise = null, { timeout } = {}) {
       once = false
       error = err
       pending -= 1
-      state = ERROR
+      state = STATUS.ERROR
       dispatch('error', e)
     }
   }
@@ -76,16 +91,17 @@ export function suspend (promise = null, { timeout } = {}) {
 }
 
 function updateState () {
-  if (state == ERROR) return
+  if (state == STATUS.ERROR) return
 
   function update() {
-    if (state === ERROR) return
+    if (state === STATUS.ERROR) return
     if (pending) {
-      state = LOADING
+      state = STATUS.LOADING
     } else {
       // TODO: Should we allow components to go from READY to LOADING?
       // The UX is pretty awful on every example I've tried.
-      state = READY
+      state = STATUS.READY
+      onReady()
       dispatch('load')
     }
   }
@@ -100,16 +116,16 @@ function updateState () {
 function wait (timeout) {
   return new Promise(resolve => setTimeout(resolve, timeout))
 }
-
-setContext(CONTEXT, suspend)
 </script>
 
-{#if state === LOADING}
-  <slot name="loading"></slot>
-{:else if state === ERROR}
+{#if state === STATUS.ERROR}
   <slot name="error" { error }></slot>
+{:else if $list_status === LIST_STATUS.HIDDEN}
+  <!-- Hidden -->
+{:else if state === STATUS.LOADING || $list_status === LIST_STATUS.LOADING}
+  <slot name="loading"></slot>
 {/if}
 
-<div hidden={ state !== READY }>
+<div hidden={ state !== STATUS.READY || $list_status !== LIST_STATUS.READY }>
   <slot { suspend }></slot>
 </div>

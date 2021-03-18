@@ -6,34 +6,6 @@ When requesting asynchronous data, a typical pattern is for a parent component t
 
 [See it in action](https://svelte.dev/repl/68f214326ffd40848272422836caa1f5?version=3.35.0)
 
-## `<Suspense>`
-
-`<Suspense>` provides three slots, only one of which will be displayed at a time.  All three are optional.
-
-- *loading*: If there any pending requests, this slot will be displayed.
-- *error*: Once any request fails, this slot is displayed.  The error is assumed to be unrecoverable and this instance will no longer update its status.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`. 
-- *default*: After all children have finished loading data, display this.
-
-Two events are availabe:
-- *on:error*: Triggers after any promise given to `suspend` is rejected.  The original error is passed as part of `event.detail`.
-- *on:load*:  Triggers after the first time the components inside the `<Suspense>` block finish loading.
-
-```html
-<script>
-import Suspense from '@jamcart/suspense'
-const MyComponent = import('./my-component.svelte').then(m => m.default)
-</script>
-
-<Suspense let:suspend on:error={ e => console.error(e.details) } on:load={ () => console.log("loaded") }>
-  <p slot="loading">Loading...</p>
-  <p slot="error" let:error>Error: { error?.message || error }</p>
-
-  <h1>My Component</h1>
-  {#await suspend(MyComponent) then MyComponent}
-    <MyComponent />
-  {/await}
-</Suspense>
-```
 
 ## `createSuspense`
 
@@ -78,6 +50,61 @@ const request = fetch('/my-api').then(response => response.json())
     {/each}
   </ul>
 {/await}
+```
+
+## `<Suspense>`
+
+`<Suspense>` provides three slots, only one of which will be displayed at a time.  All three are optional.
+
+- *loading*: If there any pending requests, this slot will be displayed.
+- *error*: Once any request fails, this slot is displayed.  The error is assumed to be unrecoverable and this instance will no longer update its status.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`. 
+- *default*: After all children have finished loading data, display this.
+
+Two events are availabe:
+- *on:error*: Triggers after any promise given to `suspend` is rejected.  The original error is passed as part of `event.detail`.
+- *on:load*:  Triggers after the first time the components inside the `<Suspense>` block finish loading.
+
+```html
+<script>
+import { Suspense } from '@jamcart/suspense'
+const MyComponent = import('./my-component.svelte').then(m => m.default)
+</script>
+
+<Suspense let:suspend on:error={ e => console.error(e.details) } on:load={ () => console.log("loaded") }>
+  <p slot="loading">Loading...</p>
+  <p slot="error" let:error>Error: { error?.message || error }</p>
+
+  <h1>My Component</h1>
+  {#await suspend(MyComponent) then MyComponent}
+    <MyComponent />
+  {/await}
+</Suspense>
+```
+
+## `<SuspenseList>`
+
+`<SuspenseList>` orchestrates the loading of all child `<Suspense>` containers.  It guarantees they will load in display order.  This is useful to avoid multiple, distracting pop-ins of content or reflow of elements while the user is reading.
+
+- *collapse*: Boolean, defaults to `false`.  If `true`, only one loading state will be shown among the children.
+
+```html
+<script>
+import { Suspense, SuspenseList } from '@jamcart/suspense'
+import Loading from './loading.svelte
+import Post from './my-component.svelte'
+
+export let posts
+</script>
+
+<SuspenseList>
+  {#each posts as post}
+    <Suspense>
+      <Loading slot="loading" />
+
+      <Post { post } />
+    </Suspense>
+  {/each}
+</SuspenseList>
 ```
 
 ## Limitations

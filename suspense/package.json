@@ -3,7 +3,7 @@
   "description": "Put Svelte in Suspense",
   "type": "module",
   "license": "0BSD",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "main": "./index.js",
   "exports": {
     ".": "./index.js",
