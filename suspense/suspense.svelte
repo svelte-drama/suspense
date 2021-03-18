@@ -33,7 +33,6 @@ const STATUS = {
 let error = null
 let pending = 0
 let state = STATUS.INIT // FIXME: This needs to set to LOADING for SSR
-export let timeout = 50
 
 const register = getContext(LIST_CONTEXT)
 const {
@@ -106,10 +105,12 @@ function updateState () {
     }
   }
 
-  if (pending) {
-    wait(timeout).then(update)
+  if (typeof window.requestIdleCallback === 'function') {
+    requestIdleCallback(update, {
+      timeout: 50
+    })
   } else {
-    wait(50).then(update)
+    setTimeout(update, 10)
   }
 }
 

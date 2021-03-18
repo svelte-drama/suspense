@@ -1,4 +1,4 @@
 {
   "private": true,
-  "workspaces": ["./demo", "./suspense"]
+  "workspaces": ["./demo", "./demo-social", "./suspense"]
 }
