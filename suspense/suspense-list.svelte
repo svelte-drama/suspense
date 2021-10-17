@@ -15,7 +15,7 @@ const dispatch = createEventDispatcher()
 
 export let collapse = false
 let count = 0
-let loaded = new Set([])
+let loaded = new Set()
 let last_loaded = writable(0)
 
 setContext(CONTEXT, register)
@@ -43,13 +43,18 @@ function register () {
     })
   }
 
+  const onError = function (e) {
+    onReady()
+    dispatch('error', e)
+  }
+
   const status = derived(last_loaded, last => {
     if (index <= last) return STATUS.READY
     if (index === last + 1) return STATUS.LOADING
     return (collapse ? STATUS.HIDDEN : STATUS.LOADING)
   })
 
-  return { status, onReady }
+  return { status, onError, onReady }
 }
 </script>
 

@@ -25,7 +25,8 @@ const dispatch = createEventDispatcher()
 
 const register = getContext(LIST_CONTEXT)
 const {
-  onReady = () => {},
+  onError: list_onError = () => {},
+  onReady: list_onReady = () => {},
   status: list_status = readable(LIST_STATUS.READY)
 } = register?.() ?? {}
 setContext(LIST_CONTEXT)
@@ -39,7 +40,7 @@ let loading = false
 // new promises coming in as a result of old ones resolving.
 const dispatchLoadEvent = debounce(() => {
   if (!loading) {
-    onReady()
+    list_onReady()
     dispatch('load')
   }
 }, 5)
@@ -87,6 +88,7 @@ function suspend (promise_like) {
     .catch(e => {
       error = e
       dispatch('error', e)
+      list_onError()
     })
     .finally(unsubscribe)
 }
