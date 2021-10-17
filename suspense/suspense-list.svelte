@@ -9,29 +9,34 @@ export const STATUS = {
 </script>
 
 <script>
-import { setContext } from 'svelte'
+import { createEventDispatcher, setContext } from 'svelte'
 import { derived, writable } from 'svelte/store'
+const dispatch = createEventDispatcher()
 
 export let collapse = false
 let count = 0
 let loaded = new Set([])
-let last_loaded = writable(-1)
+let last_loaded = writable(0)
 
 setContext(CONTEXT, register)
 
 /* ----- */
 
 function register () {
-  const index = count++
+  const index = ++count
 
   const onReady = function () {
     loaded.add(index)
     last_loaded.update(last => {
       let i
-      for (i = last; i < count; i++) {
+      for (i = last; i <= count; i++) {
         if (!loaded.has(i + 1)) {
           break;
         }
+      }
+
+      if (i === count) {
+        dispatch('load')
       }
 
       return i

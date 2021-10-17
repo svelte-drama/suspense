@@ -10,7 +10,7 @@ const request = fetch(`https://itunes.apple.com/us/rss/topalbums/limit=35/json`)
 </script>
 
 {#await suspend(request) then albums}
-  <SuspenseList>
+  <SuspenseList on:load={ () => console.log("Loaded") }>
     <ul>
       {#each albums as album}
         <li>
