@@ -4,10 +4,22 @@
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
   "version": "0.3.0",
+  "svelte": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "package.json",
+    "README.md",
+    "dist/**/*.d.ts",
+    "dist/**/*.js",
+    "dist/**/*.svelte"
+  ],
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit package",
-    "preview": "svelte-kit preview",
+    "prepare": "pnpm run build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint --ignore-path .gitignore ."

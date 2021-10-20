@@ -1,7 +1,10 @@
 <script>
+import { writable } from 'svelte/store'
 import { createSuspense } from '@jamcart/suspense'
 const suspend = createSuspense()
-const resolve = suspend().resolve
+
+const loaded = suspend(writable(undefined))
+const resolve = () => loaded.set(true)
 
 export let src
 </script>

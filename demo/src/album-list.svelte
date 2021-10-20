@@ -1,9 +1,9 @@
 <script>
+import Album from './album.svelte'
 import AlbumSkeleton from './album-skeleton.svelte'
 import { createSuspense, Suspense, SuspenseList } from '@jamcart/suspense'
 const suspend = createSuspense()
 
-const Album = import('./album.svelte').then(m => m.default)
 const request = fetch(`https://itunes.apple.com/us/rss/topalbums/limit=35/json`)
   .then(response => response.json())
   .then(data => data.feed.entry)
@@ -14,12 +14,9 @@ const request = fetch(`https://itunes.apple.com/us/rss/topalbums/limit=35/json`)
     <ul>
       {#each albums as album}
         <li>
-          <Suspense let:suspend>
+          <Suspense>
+            <Album { album } />
             <AlbumSkeleton slot="loading" />
-  
-            {#await suspend(Album) then Album}
-              <Album { album } />
-            {/await}
           </Suspense>
         </li>
       {/each}

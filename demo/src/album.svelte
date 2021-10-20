@@ -1,8 +1,12 @@
 <script>
 import { createSuspense } from '@jamcart/suspense'
+import { writable } from 'svelte/store';
 const suspend = createSuspense()
 
-export let album;
+export let album
+
+const loaded = suspend(writable(undefined))
+const onLoad = () => loaded.set(true)
 
 $: src = album['im:image'][2].label
 $: title = album['im:name'].label
@@ -12,7 +16,7 @@ $: href = album.id.label
 
 <a { href } target="blank">
   <figure>
-    <img on:load={ suspend().resolve } { src } alt="" />
+    <img on:load={ onLoad } { src } alt="" />
     <figcaption>
       <span class="title">{ title }</span>
       <span class="artist">{ artist }</span>

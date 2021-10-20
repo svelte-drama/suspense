@@ -2,15 +2,14 @@
 import AlbumList from './album-list.svelte'
 import Layout from './layout.svelte'
 import Loading from './loading.svelte'
-import Suspense from '@jamcart/suspense'
+import { Suspense } from '@jamcart/suspense'
 </script>
 
 <Layout>
 	<Suspense>
-		<p slot="error">Error!</p>
-		<Loading slot="loading" />
-
 		<AlbumList />
+		<Loading slot="loading" />
+		<p slot="error">Error!</p>
 	</Suspense>
 </Layout>
 

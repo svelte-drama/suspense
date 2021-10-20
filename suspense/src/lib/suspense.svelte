@@ -1,111 +1,98 @@
-<script context="module">
-import { getContext } from 'svelte'
+<script lang="ts">
+import debounce from './debounce'
+import { createEventDispatcher } from 'svelte'
+import { derived, writable, readable } from 'svelte/store'
+import type { Readable } from 'svelte/store'
 
-const CONTEXT = {}
+import { setContext } from './suspense-context'
+import {
+  getContext as getListContext,
+  setContext as setListContext,
+  STATUS as LIST_STATUS
+} from './suspense-list-context'
 
-function dummy_suspend (promise) {
-  if (promise) return promise
-
-  return {
-    resolve: () => {},
-    reject: () => {}
-  }
-}
-
-export function createSuspense() {
-  return getContext(CONTEXT) || dummy_suspend
-}
-</script>
-
-<script>
-import { createEventDispatcher, setContext } from 'svelte'
-import { readable } from 'svelte/store'
-import { CONTEXT as LIST_CONTEXT, STATUS as LIST_STATUS } from './suspense-list.svelte'
 const dispatch = createEventDispatcher()
+const isBrowser = (typeof window !== 'undefined')
 
-const register = getContext(LIST_CONTEXT)
-const {
-  onError: list_onError = () => {},
-  onReady: list_onReady = () => {},
-  status: list_status = readable(LIST_STATUS.READY)
-} = register?.() ?? {}
-setContext(LIST_CONTEXT)
+const { isReady: listState, onFinished } = getListContext()
+setListContext()
 
-setContext(CONTEXT, suspend)
+type PendingStore = Readable<{
+  data?: unknown,
+  error?: Error
+}>
+let pending: PendingStore[] = []
+$: pendingValues = derived(pending, $pending => $pending)
 
-let error
-let loading = false
+$: error = $pendingValues.find(item => item.error)?.error
+$: error && dispatch('error', error)
 
-// Debounce and give this a slight delay to account for
-// new promises coming in as a result of old ones resolving.
-const dispatchLoadEvent = debounce(() => {
-  if (!loading) {
-    list_onReady()
+// Debounce to prevent dispatching multiple events when
+// requests are chained.
+const dispatchLoaded = debounce(() => {
+  if (!loading && !error) {
     dispatch('load')
-  }
-}, 5)
-
-// Svelte stores track if they have any active subscribers.
-// We'll take advantage of that logic, even though we never
-// care about the actual value of this store.
-const ref_count = readable(0, () => {
-  loading = true
-  return () => {
-    loading = false
-    dispatchLoadEvent()
+    onFinished()
   }
 })
+$: loading = !isBrowser || $pendingValues.some(item => !item.data)
+$: !loading && !error && dispatchLoaded()
 
-/* ----- */
+setContext(suspend)
 
-function createPromise () {
-  let resolve, reject
-  const promise = new Promise((resolve_, reject_) => {
-    resolve = resolve_
-    reject = reject_
-  })
-  return { promise, resolve, reject }
-}
-
-function debounce (fn, time) {
-	let timer
-
-	return function (...args) {
-		clearTimeout(timer)
-		timer = setTimeout(() => fn(...args), time)
-	}
-}
-
-function suspend (promise_like) {
-  if (!promise_like) {
-    const { promise, resolve, reject } = createPromise()
-    suspend(promise)
-    return { resolve, reject }
+function suspend<T> (data: Readable<T | undefined>, error?: Readable<Error | undefined>): Readable<T | undefined>
+function suspend<T> (data: Promise<T>): Promise<T>
+function suspend<T> (data: Readable<T | undefined> | Promise<T>, error?: Readable<Error | undefined>) {
+  if ('subscribe' in data) {
+    error = error || readable(undefined)
+    return suspendStore(data, error)
+  } else {
+    return suspendPromise(data)
   }
+}
 
-  const unsubscribe = ref_count.subscribe(() => {})
-  return promise_like
-    .catch(e => {
-      error = e
-      dispatch('error', e)
-      list_onError()
-    })
-    .finally(unsubscribe)
+function suspendStore<T> (data_store: Readable<T | undefined>, error_store: Readable<Error | undefined>) {
+  const store = derived([data_store, error_store], ([data, error]) => {
+    if (data !== undefined) {
+      return { data }
+    } else if (error) {
+      return { error }
+    } else {
+      return {}
+    }
+  })
+  pending.push(store)
+  pending = pending
+  return data_store
+}
+
+function suspendPromise<T> (promise: Promise<T>) {
+  const store = writable({})
+  promise
+    .then(data => store.set({ data }))
+    .catch(error => store.set({ error }))
+  pending.push(store)
+  pending = pending
+  return promise
 }
 </script>
 
 {#if error}
-  <slot name="error" { error }></slot>
+  {#if $listState !== LIST_STATUS.HIDDEN}
+    <slot name="error" { error }></slot>
+  {/if}
 {:else}
-  {#if $list_status === LIST_STATUS.HIDDEN}
+  {#if $listState === LIST_STATUS.HIDDEN}
     <!-- Hidden -->
-  {:else if loading || $list_status === LIST_STATUS.LOADING}
+  {:else if loading || $listState === LIST_STATUS.LOADING}
     <slot name="loading"></slot>
   {/if}
 
-  <div hidden={ loading || $list_status !== LIST_STATUS.READY }>
-    <slot { suspend }></slot>
-  </div>
+  {#if isBrowser}
+    <div hidden={ loading || $listState !== LIST_STATUS.READY }>
+      <slot { suspend } />	
+    </div>
+  {/if}
 {/if}
 
 <style>

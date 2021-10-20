@@ -4,7 +4,7 @@ This is a Svelte component that implements the core idea of React's `<Suspense>`
 
 When requesting asynchronous data, a typical pattern is for a parent component to handle all fetching and then push data down to its children.  This can become difficult as levels of nesting increase and add unnessecary amounts of complexity.  `<Suspense>` instead lets its children, at an arbitrary nested depth, dictate when they are done loading.
 
-[See it in action](https://svelte.dev/repl/68f214326ffd40848272422836caa1f5?version=3.35.0)
+[See it in action](https://svelte.dev/repl/91183af6db654f2099806426ff3bbb4b?version=3.44.0)
 
 
 ## `createSuspense`
@@ -20,57 +20,40 @@ const suspend = createSuspense()
 
 The resulting function, `suspend`, can be used in two different ways.
 
-### suspend(promise) => promise
-
-Register a promise.  This returns a promise, allowing it to be used as part of a promise chain.
-
-### suspend() => { resolve, reject }
-
-Delays loading under either `resolve`, indicating success, or `reject`, throwing `<Suspense>` to its error state, is called.
-
-### Example
-
-This example causes the parent `<Suspense>` container to display loading until *all* images have finished loading.
-
-```html
-// my-component.svelte
-<script>
-import { createSuspense } from '@jamcart/suspense'
-const suspend = createSuspense()
-
-const request = fetch('/my-api').then(response => response.json())
-</script>
-
-{#await suspend(request) then data}
-  <ul>
-    {#each data as item}
-      <li>
-        <img on:load={ suspend().resolve } alt={ item.title } src={ item.src } />
-      </li>
-    {/each}
-  </ul>
-{/await}
+```js
+suspend(data: Promise) => data
 ```
+
+Register a promise.  This returns a promise, allowing it to be used as part of a promise chain.  The containing `<Suspense>` component will display its `loading` state until the promise is resolved.  If the promise is rejected, it will instead show the `error` state.
+
+```js
+suspend(data: Readable) => data
+suspend(data: Readable, error: Readable) => data
+```
+
+Register a store.  This will be considered loading as long as data resolves to `undefined`.  If `error` is passed and is equal to any value other than `undefined`, the error state will be displayed.
 
 ## `<Suspense>`
 
 `<Suspense>` provides three slots, only one of which will be displayed at a time.  All three are optional.
 
 - *loading*: If there any pending requests, this slot will be displayed.
-- *error*: Once any request fails, this slot is displayed.  The error is assumed to be unrecoverable and this instance will no longer update its status.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`. 
+- *error*: Once a request fails, this slot is displayed.  The caught error is [passed to the slot](https://svelte.dev/docs#slot_let) as `error`.
 - *default*: After all children have finished loading data, display this.
 
 Two events are availabe:
-- *on:error*: Triggers after any promise given to `suspend` is rejected.  The original error is passed as part of `event.detail`.
-- *on:load*:  Triggers after the first time the components inside the `<Suspense>` block finish loading.
+- *on:error*: Triggers after a promise given to `suspend` is rejected.  The original error is passed as part of `event.detail`.
+- *on:load*:  Triggers when all components inside the `<Suspense>` block have finished loading.
 
 ```html
 <script>
-import { Suspense } from '@jamcart/suspense'
+import { createSuspense, Suspense } from '@jamcart/suspense'
+const suspend = createSuspense()
+
 const MyComponent = import('./my-component.svelte').then(m => m.default)
 </script>
 
-<Suspense let:suspend on:error={ e => console.error(e.details) } on:load={ () => console.log("loaded") }>
+<Suspense on:error={ e => console.error(e.details) } on:load={ () => console.log("loaded") }>
   <p slot="loading">Loading...</p>
   <p slot="error" let:error>Error: { error?.message || error }</p>
 
@@ -86,6 +69,7 @@ const MyComponent = import('./my-component.svelte').then(m => m.default)
 `<SuspenseList>` orchestrates the loading of all child `<Suspense>` containers.  It guarantees they will load in display order.  This is useful to avoid multiple, distracting pop-ins of content or reflow of elements while the user is reading.
 
 - *collapse*: Boolean, defaults to `false`.  If `true`, only one loading state will be shown among the children.
+- *on:load*:  Triggers when all components inside the `<SuspenseList>` have finished loading.
 
 ```html
 <script>
@@ -99,9 +83,9 @@ export let posts
 <SuspenseList>
   {#each posts as post}
     <Suspense>
-      <Loading slot="loading" />
-
       <Post { post } />
+
+      <Loading slot="loading" />
     </Suspense>
   {/each}
 </SuspenseList>
@@ -110,36 +94,4 @@ export let posts
 ## Limitations
 
 * [Intro transitions](https://svelte.dev/docs#transition_fn) will not work as expected on elements inside the default slot.  Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions prematurely.
-* SSR will display a blank component.  `<Suspense>` components are initialized as empty initially to avoid flahses of content as the underlying promises regiser and resolve.
-* `createSuspense` operates at component boundaries.  The following example causes the parent of "my-component.svelte" to suspend, not the `<Suspense>` block inside of it, despite initial appearances:
-
-```html
-<script>
-  import getData from './get-data.js'
-  import Suspense, { createSuspense } from '@jamcart/suspense'
-  const suspend = createSuspense()
-  const request = getData()
-</script>
-
-<Suspense>
-  {#await suspend(request) then data}
-    { JSON.stringify(data) }
-  {/await}
-</Suspense>
-```
-
-This, however, will work as it looks:
-
-```html
-<script>
-  import getData from './get-data.js'
-  import Suspense from '@jamcart/suspense'
-  const request = getData()
-</script>
-
-<Suspense let:suspend>
-  {#await suspend(request) then data}
-    { JSON.stringify(data) }
-  {/await}
-</Suspense>
-```
+* SSR will only display the loading component.  Implement `<Suspense>` during SSR would require Svelte to support `async/await` during SSR.
