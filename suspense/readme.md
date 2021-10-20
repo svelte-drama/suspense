@@ -41,7 +41,7 @@ const suspend = createSuspense()
 const request = fetch('/my-api').then(response => response.json())
 </script>
 
-{#await suspense(request) then data}
+{#await suspend(request) then data}
   <ul>
     {#each data as item}
       <li>
@@ -90,7 +90,7 @@ const MyComponent = import('./my-component.svelte').then(m => m.default)
 ```html
 <script>
 import { Suspense, SuspenseList } from '@jamcart/suspense'
-import Loading from './loading.svelte
+import Loading from './loading.svelte'
 import Post from './my-component.svelte'
 
 export let posts
@@ -113,33 +113,33 @@ export let posts
 * SSR will display a blank component.  `<Suspense>` components are initialized as empty initially to avoid flahses of content as the underlying promises regiser and resolve.
 * `createSuspense` operates at component boundaries.  The following example causes the parent of "my-component.svelte" to suspend, not the `<Suspense>` block inside of it, despite initial appearances:
 
-  ```html
-  <script>
-    import getData from './get-data.js'
-    import Suspense, { createSuspense } from '@jamcart/suspense'
-    const suspend = createSuspense()
-    const request = getData()
-  </script>
+```html
+<script>
+  import getData from './get-data.js'
+  import Suspense, { createSuspense } from '@jamcart/suspense'
+  const suspend = createSuspense()
+  const request = getData()
+</script>
 
-  <Suspense>
-    {#await suspend(request) then data}
-      { JSON.stringify(data) }
-    {/await}
-  </Suspense>
-  ```
+<Suspense>
+  {#await suspend(request) then data}
+    { JSON.stringify(data) }
+  {/await}
+</Suspense>
+```
 
-  This, however, will work as it looks:
+This, however, will work as it looks:
 
-  ```html
-  <script>
-    import getData from './get-data.js'
-    import Suspense from '@jamcart/suspense'
-    const request = getData()
-  </script>
+```html
+<script>
+  import getData from './get-data.js'
+  import Suspense from '@jamcart/suspense'
+  const request = getData()
+</script>
 
-  <Suspense let:suspend>
-    {#await suspend(request) then data}
-      { JSON.stringify(data) }
-    {/await}
-  </Suspense>
-  ```
+<Suspense let:suspend>
+  {#await suspend(request) then data}
+    { JSON.stringify(data) }
+  {/await}
+</Suspense>
+```
