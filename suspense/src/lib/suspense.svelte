@@ -35,12 +35,12 @@ const dispatchLoaded = debounce(() => {
     onFinished()
   }
 })
-$: loading = !isBrowser || $pendingValues.some((item) => !item.data)
+$: loading = !isBrowser || $pendingValues.some((item) => item.data === undefined)
 $: !loading && !error && dispatchLoaded()
 
 setContext(suspend)
 
-function suspend<T>(
+export function suspend<T>(
   data: Readable<T | undefined>,
   error?: Readable<Error | undefined>
 ): Readable<T | undefined>
@@ -64,10 +64,8 @@ function suspendStore<T>(
   const store = derived([data_store, error_store], ([data, error]) => {
     if (data !== undefined) {
       return { data }
-    } else if (error) {
-      return { error }
     } else {
-      return {}
+      return { error }
     }
   })
   pending.push(store)
@@ -86,22 +84,18 @@ function suspendPromise<T>(promise: Promise<T>) {
 }
 </script>
 
-{#if error}
-  {#if $listState !== LIST_STATUS.HIDDEN}
-    <slot name="error" {error} />
-  {/if}
-{:else}
-  {#if $listState === LIST_STATUS.HIDDEN}
-    <!-- Hidden -->
-  {:else if loading || $listState === LIST_STATUS.LOADING}
-    <slot name="loading" />
-  {/if}
+{#if $listState === LIST_STATUS.HIDDEN}
+  <!-- Hidden -->
+{:else if error}
+  <slot name="error" { error }></slot>
+{:else if loading || $listState === LIST_STATUS.LOADING}
+  <slot name="loading"></slot>
+{/if}
 
-  {#if isBrowser}
-    <div hidden={loading || $listState !== LIST_STATUS.READY}>
-      <slot {suspend} />
-    </div>
-  {/if}
+{#if isBrowser}
+  <div hidden={ !!error || loading || $listState !== LIST_STATUS.READY }>
+    <slot { suspend } />	
+  </div>
 {/if}
 
 <style>
