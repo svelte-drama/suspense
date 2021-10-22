@@ -1,67 +1,34 @@
 lockfileVersion: 5.3
 
-importers:
+specifiers:
+  '@sveltejs/kit': next
+  '@typescript-eslint/eslint-plugin': ^4.33.0
+  '@typescript-eslint/parser': ^4.33.0
+  eslint: ^7.32.0
+  eslint-plugin-svelte3: ^3.2.1
+  prettier: ^2.4.1
+  prettier-plugin-svelte: ^2.4.0
+  svelte: ^3.44.0
+  svelte-check: ^2.2.7
+  svelte-preprocess: ^4.9.8
+  svelte2tsx: ^0.4.7
+  tslib: ^2.3.1
+  typescript: ^4.4.4
 
-  .:
-    specifiers: {}
-
-  demo:
-    specifiers:
-      '@jamcart/suspense': workspace:^0.3.0
-      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.28
-      svelte: ^3.43.2
-      svelte-hmr: ^0.13.5
-      vite: ^2.6.7
-    devDependencies:
-      '@jamcart/suspense': link:../suspense
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.28_svelte@3.43.2+vite@2.6.7
-      svelte: 3.43.2
-      svelte-hmr: 0.13.5_svelte@3.43.2
-      vite: 2.6.7
-
-  demo-social:
-    specifiers:
-      '@jamcart/suspense': workspace:^0.3.0
-      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.28
-      svelte: ^3.43.2
-      svelte-hmr: ^0.13.5
-      vite: ^2.6.7
-    devDependencies:
-      '@jamcart/suspense': link:../suspense
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.28_svelte@3.43.2+vite@2.6.7
-      svelte: 3.43.2
-      svelte-hmr: 0.13.5_svelte@3.43.2
-      vite: 2.6.7
-
-  suspense:
-    specifiers:
-      '@sveltejs/kit': next
-      '@typescript-eslint/eslint-plugin': ^4.33.0
-      '@typescript-eslint/parser': ^4.33.0
-      eslint: ^7.32.0
-      eslint-plugin-svelte3: ^3.2.1
-      prettier: ^2.4.1
-      prettier-plugin-svelte: ^2.4.0
-      svelte: ^3.44.0
-      svelte-check: ^2.2.7
-      svelte-preprocess: ^4.9.8
-      svelte2tsx: ^0.4.7
-      tslib: ^2.3.1
-      typescript: ^4.4.4
-    devDependencies:
-      '@sveltejs/kit': 1.0.0-next.188_svelte@3.44.0
-      '@typescript-eslint/eslint-plugin': 4.33.0_cc617358c89d3f38c52462f6d809db4c
-      '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.4
-      eslint: 7.32.0
-      eslint-plugin-svelte3: 3.2.1_eslint@7.32.0+svelte@3.44.0
-      prettier: 2.4.1
-      prettier-plugin-svelte: 2.4.0_prettier@2.4.1+svelte@3.44.0
-      svelte: 3.44.0
-      svelte-check: 2.2.7_svelte@3.44.0
-      svelte-preprocess: 4.9.8_svelte@3.44.0+typescript@4.4.4
-      svelte2tsx: 0.4.7_svelte@3.44.0+typescript@4.4.4
-      tslib: 2.3.1
-      typescript: 4.4.4
+devDependencies:
+  '@sveltejs/kit': 1.0.0-next.188_svelte@3.44.0
+  '@typescript-eslint/eslint-plugin': 4.33.0_cc617358c89d3f38c52462f6d809db4c
+  '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.4
+  eslint: 7.32.0
+  eslint-plugin-svelte3: 3.2.1_eslint@7.32.0+svelte@3.44.0
+  prettier: 2.4.1
+  prettier-plugin-svelte: 2.4.0_prettier@2.4.1+svelte@3.44.0
+  svelte: 3.44.0
+  svelte-check: 2.2.7_svelte@3.44.0
+  svelte-preprocess: 4.9.8_svelte@3.44.0+typescript@4.4.4
+  svelte2tsx: 0.4.7_svelte@3.44.0+typescript@4.4.4
+  tslib: 2.3.1
+  typescript: 4.4.4
 
 packages:
 
@@ -163,29 +130,6 @@ packages:
       - less
       - sass
       - stylus
-      - supports-color
-    dev: true
-
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.28_svelte@3.43.2+vite@2.6.7:
-    resolution: {integrity: sha512-NZlOSfogZHQFLp8Vp59tIc0grmmJeTyyxJt0o9uomeQC0hZJsA7jp8rRW7EMH7TRvo+tv1MtB9BU84lStv7xYw==}
-    engines: {node: ^12.20 || ^14.13.1 || >= 16}
-    peerDependencies:
-      diff-match-patch: ^1.0.5
-      svelte: ^3.34.0
-      vite: ^2.6.0
-    peerDependenciesMeta:
-      diff-match-patch:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 4.1.1
-      debug: 4.3.2
-      kleur: 4.1.4
-      magic-string: 0.25.7
-      require-relative: 0.8.7
-      svelte: 3.43.2
-      svelte-hmr: 0.14.7_svelte@3.43.2
-      vite: 2.6.7
-    transitivePeerDependencies:
       - supports-color
     dev: true
 
@@ -1277,10 +1221,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /picocolors/0.2.1:
-    resolution: {integrity: sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA==}
-    dev: true
-
   /picocolors/1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
     dev: true
@@ -1296,15 +1236,6 @@ packages:
     dependencies:
       nanoid: 3.1.30
       picocolors: 1.0.0
-      source-map-js: 0.6.2
-    dev: true
-
-  /postcss/8.3.9:
-    resolution: {integrity: sha512-f/ZFyAKh9Dnqytx5X62jgjhhzttjZS7hMsohcI7HEI5tjELX/HxCy3EFhsRxyzGvrzFF+82XPvCS8T9TFleVJw==}
-    engines: {node: ^10 || ^12 || >=14}
-    dependencies:
-      nanoid: 3.1.30
-      picocolors: 0.2.1
       source-map-js: 0.6.2
     dev: true
 
@@ -1558,22 +1489,6 @@ packages:
       - sugarss
     dev: true
 
-  /svelte-hmr/0.13.5_svelte@3.43.2:
-    resolution: {integrity: sha512-DgYkBMBkOFVqm0HydwKDLF9kZ3iJkNFZeR9TjkTytcActs3onfd3qXP/ImqKd492PRLQbNtW1V/AeYN1R2IxOw==}
-    peerDependencies:
-      svelte: '>=3.19.0'
-    dependencies:
-      svelte: 3.43.2
-    dev: true
-
-  /svelte-hmr/0.14.7_svelte@3.43.2:
-    resolution: {integrity: sha512-pDrzgcWSoMaK6AJkBWkmgIsecW0GChxYZSZieIYfCP0v2oPyx2CYU/zm7TBIcjLVUPP714WxmViE9Thht4etog==}
-    peerDependencies:
-      svelte: '>=3.19.0'
-    dependencies:
-      svelte: 3.43.2
-    dev: true
-
   /svelte-hmr/0.14.7_svelte@3.44.0:
     resolution: {integrity: sha512-pDrzgcWSoMaK6AJkBWkmgIsecW0GChxYZSZieIYfCP0v2oPyx2CYU/zm7TBIcjLVUPP714WxmViE9Thht4etog==}
     peerDependencies:
@@ -1631,11 +1546,6 @@ packages:
       strip-indent: 3.0.0
       svelte: 3.44.0
       typescript: 4.4.4
-    dev: true
-
-  /svelte/3.43.2:
-    resolution: {integrity: sha512-Lj+TJfSeod8UGnoG2opysdlCy4MCck/hHQsZwtNPXdYTwLTz+WC37QwewPhZtd+h3dpfps4h9QzFxWGVI4tzQw==}
-    engines: {node: '>= 8'}
     dev: true
 
   /svelte/3.44.0:
@@ -1742,30 +1652,6 @@ packages:
     dependencies:
       esbuild: 0.13.8
       postcss: 8.3.11
-      resolve: 1.20.0
-      rollup: 2.58.0
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
-  /vite/2.6.7:
-    resolution: {integrity: sha512-ewk//jve9k6vlU8PfJmWUHN8k0YYdw4VaKOMvoQ3nT2Pb6k5OSMKQi4jPOzVH/TlUqMsCrq7IJ80xcuDDVyigg==}
-    engines: {node: '>=12.2.0'}
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-    dependencies:
-      esbuild: 0.13.8
-      postcss: 8.3.9
       resolve: 1.20.0
       rollup: 2.58.0
     optionalDependencies:
