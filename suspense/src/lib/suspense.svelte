@@ -2,7 +2,7 @@
 import debounce from './debounce'
 import { createEventDispatcher } from 'svelte'
 import { derived, writable, readable } from 'svelte/store'
-import type { Readable } from 'svelte/store'
+import type { Readable, Writable } from 'svelte/store'
 
 import { setContext } from './suspense-context'
 import {
@@ -17,11 +17,11 @@ const isBrowser = typeof window !== 'undefined'
 const { isReady: listState, onFinished } = getListContext()
 setListContext()
 
-type PendingStore = Readable<{
-  data?: unknown
+type Pending = {
   error?: Error
-}>
-let pending: PendingStore[] = []
+  loaded?: boolean
+}
+let pending: Readable<Pending>[] = []
 $: pendingValues = derived(pending, ($pending) => $pending)
 
 $: error = $pendingValues.find((item) => item.error)?.error
@@ -35,8 +35,8 @@ const dispatchLoaded = debounce(() => {
     onFinished()
   }
 })
-$: loading = !isBrowser || $pendingValues.some((item) => item.data === undefined)
-$: !loading && !error && dispatchLoaded()
+$: loading = !isBrowser || $pendingValues.some((item) => !item.loaded)
+$: !loading && dispatchLoaded()
 
 setContext(suspend)
 
@@ -61,23 +61,20 @@ function suspendStore<T>(
   data_store: Readable<T | undefined>,
   error_store: Readable<Error | undefined>
 ) {
-  const store = derived([data_store, error_store], ([data, error]) => {
-    if (data !== undefined) {
-      return { data }
-    } else {
-      return { error }
-    }
-  })
+  const store = derived([data_store, error_store], ([data, error]) => ({
+    error: data !== undefined && error,
+    loaded: data !== undefined
+  }))
   pending.push(store)
   pending = pending
   return data_store
 }
 
 function suspendPromise<T>(promise: Promise<T>) {
-  const store = writable({})
+  const store: Writable<Pending> = writable({})
   promise
-    .then((data) => store.set({ data }))
-    .catch((error) => store.set({ error }))
+    .then(() => store.set({ loaded: true }))
+    .catch((error: Error) => store.set({  error }))
   pending.push(store)
   pending = pending
   return promise
