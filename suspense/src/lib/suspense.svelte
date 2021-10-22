@@ -63,7 +63,7 @@ function suspendStore<T>(
 ) {
   const store = derived([data_store, error_store], ([data, error]) => ({
     error: data !== undefined && error,
-    loaded: data !== undefined
+    loaded: data !== undefined,
   }))
   pending.push(store)
   pending = pending
@@ -74,7 +74,7 @@ function suspendPromise<T>(promise: Promise<T>) {
   const store: Writable<Pending> = writable({})
   promise
     .then(() => store.set({ loaded: true }))
-    .catch((error: Error) => store.set({  error }))
+    .catch((error: Error) => store.set({ error }))
   pending.push(store)
   pending = pending
   return promise
@@ -84,14 +84,14 @@ function suspendPromise<T>(promise: Promise<T>) {
 {#if $listState === LIST_STATUS.HIDDEN}
   <!-- Hidden -->
 {:else if error}
-  <slot name="error" { error }></slot>
+  <slot name="error" {error} />
 {:else if loading || $listState === LIST_STATUS.LOADING}
-  <slot name="loading"></slot>
+  <slot name="loading" />
 {/if}
 
 {#if isBrowser}
-  <div hidden={ !!error || loading || $listState !== LIST_STATUS.READY }>
-    <slot { suspend } />	
+  <div hidden={!!error || loading || $listState !== LIST_STATUS.READY}>
+    <slot {suspend} />
   </div>
 {/if}
 
