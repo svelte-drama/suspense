@@ -4,6 +4,10 @@ import Grid from './_grid.svelte'
 import Selector from './_selector.svelte'
 
 export let mode = 'without'
+
+function onLoad() {
+  console.log('All apples loaded')
+}
 </script>
 
 <h1>{'<SuspenseList> Demo'}</h1>
@@ -14,12 +18,12 @@ export let mode = 'without'
   <Grid />
 {/if}
 {#if mode === 'with'}
-  <SuspenseList>
+  <SuspenseList on:load={onLoad}>
     <Grid />
   </SuspenseList>
 {/if}
 {#if mode === 'collapse'}
-  <SuspenseList collapse>
+  <SuspenseList collapse on:load={onLoad}>
     <Grid />
   </SuspenseList>
 {/if}

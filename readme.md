@@ -30,7 +30,7 @@ suspend(data: Readable) => data
 suspend(data: Readable, error: Readable) => data
 ```
 
-Register a store. This will be considered loading as long as data resolves to `undefined`. If `error` is passed and is equal to any value other than `undefined`, the error state will be displayed.
+Register a store. `<Suspense>` will consider this resolved as long as `data` resolves to not `undefined`. If `error` is passed in, `<Suspense>` will display the error state as long as `data` is undefined and `error` is not.
 
 ## `<Suspense>`
 
@@ -45,17 +45,21 @@ Two events are availabe:
 - _on:error_: Triggers after a promise given to `suspend` is rejected. The original error is passed as part of `event.detail`.
 - _on:load_: Triggers when all components inside the `<Suspense>` block have finished loading.
 
-```html
+```svelte
 <script>
 import { createSuspense, Suspense } from '@jamcart/suspense'
 const suspend = createSuspense()
 
-const MyComponent = import('./my-component.svelte').then(m => m.default)
+const MyComponent = import('./my-component.svelte').then((m) => m.default)
 </script>
 
-<Suspense on:error={ e => console.error(e.details) } on:load={ () => console.log("loaded") }>
+<Suspense
+  let:suspend
+  on:error={(e) => console.error(e.details)}
+  on:load={() => console.log('loaded')}
+>
   <p slot="loading">Loading...</p>
-  <p slot="error" let:error>Error: { error?.message || error }</p>
+  <p slot="error" let:error>Error: {error?.message || error}</p>
 
   <h1>My Component</h1>
   {#await suspend(MyComponent) then MyComponent}
@@ -71,22 +75,22 @@ const MyComponent = import('./my-component.svelte').then(m => m.default)
 - _collapse_: Boolean, defaults to `false`. If `true`, only one loading state will be shown among the children.
 - _on:load_: Triggers when all components inside the `<SuspenseList>` have finished loading.
 
-```html
+```svelte
 <script>
-  import { Suspense, SuspenseList } from '@jamcart/suspense'
-  import Loading from './loading.svelte'
-  import Post from './my-component.svelte'
+import { Suspense, SuspenseList } from '@jamcart/suspense'
+import Loading from './loading.svelte'
+import Post from './my-component.svelte'
 
-  export let posts
+export let posts
 </script>
 
 <SuspenseList>
   {#each posts as post}
-  <Suspense>
-    <Post { post } />
+    <Suspense>
+      <Post {post} />
 
-    <Loading slot="loading" />
-  </Suspense>
+      <Loading slot="loading" />
+    </Suspense>
   {/each}
 </SuspenseList>
 ```
@@ -94,4 +98,36 @@ const MyComponent = import('./my-component.svelte').then(m => m.default)
 ## Limitations
 
 - [Intro transitions](https://svelte.dev/docs#transition_fn) will not work as expected on elements inside the default slot. Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions prematurely.
-- SSR will only display the loading component. Implement `<Suspense>` during SSR would require Svelte to support `async/await` during SSR.
+- SSR will only display the loading component. Implementing `<Suspense>` during SSR would require Svelte to support `async/await` during SSR.
+- `createSuspense` operates at component boundaries. The following example causes the parent of "my-component.svelte" to suspend, not the `<Suspense>` block inside of it, despite initial appearances:
+
+```svelte
+<script>
+import getData from './get-data.js'
+import Suspense, { createSuspense } from '@jamcart/suspense'
+const suspend = createSuspense()
+const request = getData()
+</script>
+
+<Suspense>
+  {#await suspend(request) then data}
+    {JSON.stringify(data)}
+  {/await}
+</Suspense>
+```
+
+This, however, will work as it looks:
+
+```svelte
+<script>
+import getData from './get-data.js'
+import Suspense from '@jamcart/suspense'
+const request = getData()
+</script>
+
+<Suspense let:suspend>
+  {#await suspend(request) then data}
+    {JSON.stringify(data)}
+  {/await}
+</Suspense>
+```

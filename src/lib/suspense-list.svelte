@@ -30,7 +30,10 @@ function register() {
   $children[index] = false
 
   function onFinished() {
-    $children[index] = true
+    // Avoid unnecessary updates
+    if (!$children[index]) {
+      $children[index] = true
+    }
   }
 
   const isReady = derived(next, ($next) => {
