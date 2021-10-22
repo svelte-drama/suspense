@@ -4,17 +4,18 @@ import { readable } from 'svelte/store'
 export const enum STATUS {
   READY = 1,
   LOADING,
-  HIDDEN
+  HIDDEN,
 }
 
 const key = {}
 
-
 const mock = {
-  onFinished () { return },
-  isReady: readable(STATUS.READY)
+  onFinished() {
+    return
+  },
+  isReady: readable(STATUS.READY),
 }
-export function getContext () {
+export function getContext() {
   const register = get<() => typeof mock>(key)
   if (register) {
     const list = register() as typeof mock
@@ -25,7 +26,6 @@ export function getContext () {
   }
 }
 
-
-export function setContext (value?: unknown) {
+export function setContext(value?: unknown) {
   set(key, value)
 }

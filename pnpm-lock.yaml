@@ -40,6 +40,8 @@ importers:
       '@typescript-eslint/parser': ^4.31.1
       eslint: ^7.32.0
       eslint-plugin-svelte3: ^3.2.1
+      prettier: ^2.4.1
+      prettier-plugin-svelte: ^2.4.0
       svelte: ^3.42.6
       svelte-check: ^2.2.6
       svelte-preprocess: ^4.9.4
@@ -47,11 +49,13 @@ importers:
       tslib: ^2.3.1
       typescript: ^4.4.3
     devDependencies:
-      '@sveltejs/kit': 1.0.0-next.186_svelte@3.43.2
+      '@sveltejs/kit': 1.0.0-next.188_svelte@3.43.2
       '@typescript-eslint/eslint-plugin': 4.33.0_cc617358c89d3f38c52462f6d809db4c
       '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.4
       eslint: 7.32.0
       eslint-plugin-svelte3: 3.2.1_eslint@7.32.0+svelte@3.43.2
+      prettier: 2.4.1
+      prettier-plugin-svelte: 2.4.0_prettier@2.4.1+svelte@3.43.2
       svelte: 3.43.2
       svelte-check: 2.2.7_svelte@3.43.2
       svelte-preprocess: 4.9.8_svelte@3.43.2+typescript@4.4.4
@@ -142,8 +146,8 @@ packages:
       picomatch: 2.3.0
     dev: true
 
-  /@sveltejs/kit/1.0.0-next.186_svelte@3.43.2:
-    resolution: {integrity: sha512-LFv2q2cToreUcGp0B+5uVfu0qMvQiw3hsyELnUwxPP/lpUbcmYjgQmwivjRNTdudCqZt7ng3Ehy7UDILbBhExQ==}
+  /@sveltejs/kit/1.0.0-next.188_svelte@3.43.2:
+    resolution: {integrity: sha512-eDssOlwcAmkUR3SGh3PK4LHBfV3mMY9vhsMohMUPV7oJO3fydOgvDykqzxK9wc1NgNB/TIBCm+1sps2vetePHw==}
     engines: {node: '>=14.13'}
     hasBin: true
     peerDependencies:
@@ -1294,6 +1298,22 @@ packages:
   /prelude-ls/1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+    dev: true
+
+  /prettier-plugin-svelte/2.4.0_prettier@2.4.1+svelte@3.43.2:
+    resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
+    peerDependencies:
+      prettier: ^1.16.4 || ^2.0.0
+      svelte: ^3.2.0
+    dependencies:
+      prettier: 2.4.1
+      svelte: 3.43.2
+    dev: true
+
+  /prettier/2.4.1:
+    resolution: {integrity: sha512-9fbDAXSBcc6Bs1mZrDYb3XKzDLm4EXXL9sC1LqKP5rZkT6KRr/rf9amVUcODVXgguK/isJz0d0hP72WeaKWsvA==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
     dev: true
 
   /progress/2.0.3:
