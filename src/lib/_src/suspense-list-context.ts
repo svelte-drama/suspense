@@ -12,17 +12,13 @@ type SuspenseListContext = {
 
 const mock: SuspenseListContext = {
   status: readable(STATUS.READY),
-  update: () => undefined
+  update: () => undefined,
 }
 export function getContext() {
-  const register = get<() => SuspenseListContext>(key)
-  if (register) {
-    const list = register()
-    onDestroy(() => list.update(true))
-    return list
-  } else {
-    return mock
-  }
+  const register = get<() => SuspenseListContext | undefined>(key)
+  const list = register?.() || mock
+  onDestroy(() => list.update(true))
+  return list
 }
 
 export function setContext(value?: () => SuspenseListContext) {

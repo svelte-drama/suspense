@@ -5,10 +5,7 @@ const key = {}
 
 type Suspend = {
   <T extends Promise<unknown>>(data: T): T
-  <T extends Readable<unknown>>(
-    data: T,
-    error?: Readable<Error | undefined>
-  ): T
+  <T extends Readable<unknown>>(data: T, error?: Readable<Error | undefined>): T
 }
 const mock: Suspend = (data: unknown) => {
   return data
