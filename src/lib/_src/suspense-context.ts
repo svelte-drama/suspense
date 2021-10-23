@@ -3,24 +3,25 @@ import type { Readable } from 'svelte/store'
 
 const key = {}
 
-function mock<T extends Promise<unknown>>(data: T): T
-function mock<T extends Readable<unknown>>(
-  data: T,
-  error?: Readable<Error | undefined>
-): T
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function mock(data: unknown, error = undefined) {
+type Suspend = {
+  <T extends Promise<unknown>>(data: T): T
+  <T extends Readable<unknown>>(
+    data: T,
+    error?: Readable<Error | undefined>
+  ): T
+}
+const mock: Suspend = (data: unknown) => {
   return data
 }
 
 export function createSuspense() {
-  const suspend = getContext(key) as typeof mock
+  const suspend: Suspend = getContext(key)
   if (suspend) return suspend
 
   console.warn('createSuspense called outside of a Suspense boundary')
   return mock
 }
 
-export function setContext<T>(value: T) {
+export function setContext(value: Suspend) {
   set(key, value)
 }

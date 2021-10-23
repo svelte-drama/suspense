@@ -30,22 +30,22 @@ function register() {
   const index = $children.length
   $children[index] = false
 
-  function onFinished() {
+  function update(loaded: boolean) {
     // Avoid unnecessary updates
-    if (!$children[index]) {
-      $children[index] = true
+    if ($children[index] !== loaded) {
+      $children[index] = loaded
     }
   }
 
-  const isReady = derived(next, ($next) => {
+  const status = derived(next, ($next) => {
     if (index < $next) return STATUS.READY
     if (index === $next) return STATUS.LOADING
     return collapse ? STATUS.HIDDEN : STATUS.LOADING
   })
 
   return {
-    onFinished,
-    isReady,
+    status,
+    update,
   }
 }
 </script>
