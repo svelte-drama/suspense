@@ -4,7 +4,7 @@ import AlbumSkeleton from './_album-skeleton.svelte'
 import { createSuspense, Suspense, SuspenseList } from '$lib'
 const suspend = createSuspense()
 
-const request = fetch(`https://itunes.apple.com/us/rss/topalbums/limit=35/json`)
+const request = fetch(`https://itunes.apple.com/us/rss/topalbums/limit=50/json`)
   .then((response) => response.json())
   .then((data) => data.feed.entry)
 </script>

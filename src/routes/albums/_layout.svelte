@@ -3,7 +3,7 @@ let refresh = 0
 </script>
 
 <header>
-  <h1>Top 100 Albums from iTunes</h1>
+  <h1>Top 50 Albums from iTunes</h1>
   <button type="button" on:click={() => refresh++}> Reload </button>
 </header>
 

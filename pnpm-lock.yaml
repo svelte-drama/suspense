@@ -16,7 +16,7 @@ specifiers:
   typescript: ^4.4.4
 
 devDependencies:
-  '@sveltejs/kit': 1.0.0-next.188_svelte@3.44.0
+  '@sveltejs/kit': 1.0.0-next.189_svelte@3.44.0
   '@typescript-eslint/eslint-plugin': 4.33.0_cc617358c89d3f38c52462f6d809db4c
   '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.4
   eslint: 7.32.0
@@ -142,10 +142,10 @@ packages:
       picomatch: 2.3.0
     dev: true
 
-  /@sveltejs/kit/1.0.0-next.188_svelte@3.44.0:
+  /@sveltejs/kit/1.0.0-next.189_svelte@3.44.0:
     resolution:
       {
-        integrity: sha512-eDssOlwcAmkUR3SGh3PK4LHBfV3mMY9vhsMohMUPV7oJO3fydOgvDykqzxK9wc1NgNB/TIBCm+1sps2vetePHw==,
+        integrity: sha512-Vmd6Oq/fI5M7LEJjXd+AOoTy7ICNT7+4rAMJttyeMjqmRhQ0i5h+NgBoVOQE1L3fwUNZtdW2ucUm+MMa9ZPTpw==,
       }
     engines: { node: '>=14.13' }
     hasBin: true
