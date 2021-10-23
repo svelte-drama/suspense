@@ -1,11 +1,6 @@
 import { getContext as get, setContext as set, onDestroy } from 'svelte'
 import { readable } from 'svelte/store'
-
-export const enum STATUS {
-  READY = 1,
-  LOADING,
-  HIDDEN,
-}
+import * as STATUS from './suspense-list-status'
 
 const key = {}
 

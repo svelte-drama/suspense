@@ -8,8 +8,8 @@ import { setContext } from './suspense-context'
 import {
   getContext as getListContext,
   setContext as setListContext,
-  STATUS as LIST_STATUS,
 } from './suspense-list-context'
+import * as LIST_STATUS from './suspense-list-status'
 
 const dispatch = createEventDispatcher()
 const isBrowser = typeof window !== 'undefined'
