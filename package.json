@@ -3,19 +3,7 @@
   "type": "module",
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
-  "version": "0.3.0",
-  "svelte": "./dist/index.js",
-  "exports": {
-    ".": "./dist/index.js",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "package.json",
-    "README.md",
-    "dist/**/*.d.ts",
-    "dist/**/*.js",
-    "dist/**/*.svelte"
-  ],
+  "version": "0.3.1",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit package",
