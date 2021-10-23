@@ -13,7 +13,7 @@ Child components need to register what data they depend on. `createSuspense` ret
 Because it relies on [getContext](https://svelte.dev/docs#getContext), this must be declared during component initialization.
 
 ```js
-import { createSuspense } from '@jamcart/suspense'
+import { createSuspense } from '@svelte-drama/suspense'
 const suspend = createSuspense()
 ```
 
@@ -47,7 +47,7 @@ Two events are availabe:
 
 ```svelte
 <script>
-import { createSuspense, Suspense } from '@jamcart/suspense'
+import { createSuspense, Suspense } from '@svelte-drama/suspense'
 const suspend = createSuspense()
 
 const MyComponent = import('./my-component.svelte').then((m) => m.default)
@@ -77,7 +77,7 @@ const MyComponent = import('./my-component.svelte').then((m) => m.default)
 
 ```svelte
 <script>
-import { Suspense, SuspenseList } from '@jamcart/suspense'
+import { Suspense, SuspenseList } from '@svelte-drama/suspense'
 import Loading from './loading.svelte'
 import Post from './my-component.svelte'
 
@@ -104,7 +104,7 @@ export let posts
 ```svelte
 <script>
 import getData from './get-data.js'
-import Suspense, { createSuspense } from '@jamcart/suspense'
+import Suspense, { createSuspense } from '@svelte-drama/suspense'
 const suspend = createSuspense()
 const request = getData()
 </script>
@@ -121,7 +121,7 @@ This, however, will work as it looks:
 ```svelte
 <script>
 import getData from './get-data.js'
-import Suspense from '@jamcart/suspense'
+import Suspense from '@svelte-drama/suspense'
 const request = getData()
 </script>
 
