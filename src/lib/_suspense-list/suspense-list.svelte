@@ -1,9 +1,9 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte'
 import { derived, writable } from 'svelte/store'
-import debounce from './debounce'
-import { setContext } from './suspense-list-context'
-import * as STATUS from './suspense-list-status'
+import debounce from '$lib/_debounce'
+import { setContext } from './context'
+import * as STATUS from './status'
 
 export let collapse = false
 

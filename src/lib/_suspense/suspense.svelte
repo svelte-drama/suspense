@@ -1,15 +1,15 @@
 <script lang="ts">
-import debounce from './debounce'
+import debounce from '$lib/_debounce'
 import { createEventDispatcher } from 'svelte'
 import { derived, writable, readable } from 'svelte/store'
 import type { Readable, Writable } from 'svelte/store'
 
-import { setContext } from './suspense-context'
+import { setContext } from './context'
 import {
   getContext as getListContext,
   setContext as setListContext,
-} from './suspense-list-context'
-import * as LIST_STATUS from './suspense-list-status'
+} from '$lib/_suspense-list/context'
+import * as LIST_STATUS from '$lib/_suspense-list/status'
 
 const dispatch = createEventDispatcher()
 const isBrowser = typeof window !== 'undefined'

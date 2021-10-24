@@ -1,6 +1,6 @@
 import { getContext as get, setContext as set, onDestroy } from 'svelte'
 import { readable } from 'svelte/store'
-import * as STATUS from './suspense-list-status'
+import * as STATUS from './status'
 import type { Readable } from 'svelte/store'
 
 const key = {}

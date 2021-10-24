@@ -1,7 +1,9 @@
 import { getContext, setContext as set } from 'svelte'
 import type { Readable } from 'svelte/store'
 
-const key = {}
+// FIXME: Vite is incorrectly running this multiple times in development,
+// once for each package that depends on it.
+const key = Symbol.for('SUSPENSE_CONTEXT')
 
 type Suspend = {
   <T extends Promise<unknown>>(data: T): T
