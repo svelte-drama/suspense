@@ -62,7 +62,7 @@ function suspendStore<T>(
   error_store: Readable<Error | undefined>
 ) {
   const store = derived([data_store, error_store], ([data, error]) => ({
-    error: data !== undefined && error,
+    error: (data !== undefined ? undefined : error),
     loaded: data !== undefined,
   }))
   pending.push(store)
