@@ -1,27 +1,20 @@
-import { getContext as get, setContext as set, onDestroy } from 'svelte'
+import { getContext as get, setContext as set } from 'svelte'
 import { readable } from 'svelte/store'
 import * as STATUS from './status'
 import type { Readable } from 'svelte/store'
+import type { STATUS_VALUES } from './status'
 
 const key = {}
 
-type STATUS_VALUES = typeof STATUS[keyof typeof STATUS]
-type SuspenseListContext = {
-  status: Readable<STATUS_VALUES>
-  update: (loaded: boolean) => void
-}
+type SuspenseListContext = Readable<STATUS_VALUES>
+type RegisterFunction = (element: HTMLElement, loaded: Readable<boolean>) => SuspenseListContext
 
-const mock: SuspenseListContext = {
-  status: readable(STATUS.READY),
-  update: () => undefined,
-}
+const mock: RegisterFunction = () => readable(STATUS.READY)
 export function getContext() {
-  const register = get<() => SuspenseListContext | undefined>(key)
-  const list = register?.() || mock
-  onDestroy(() => list.update(true))
-  return list
+  const register = get<RegisterFunction | undefined>(key)
+  return register || mock
 }
 
-export function setContext(value?: () => SuspenseListContext) {
+export function setContext(value?: RegisterFunction) {
   set(key, value)
 }

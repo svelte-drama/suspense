@@ -1,52 +1,63 @@
 <script lang="ts">
-import { createEventDispatcher } from 'svelte'
+import { createEventDispatcher, onDestroy } from 'svelte'
 import { derived, writable } from 'svelte/store'
+import type { Readable } from 'svelte/store'
 import debounce from '$lib/_debounce'
 import { setContext } from './context'
 import * as STATUS from './status'
+import type { STATUS_VALUES } from './status'
+import { sortOnDocumentOrder } from './util'
 
 export let collapse = false
 
 const dispatch = createEventDispatcher()
 const dispatchLoad = debounce(() => {
-  if ($next === $children.length) {
+  if ($next === null) {
     dispatch('load')
   }
 })
 
-const children = writable([] as boolean[])
-const next = derived(children, ($children) => {
-  const index = $children.findIndex((i) => !i)
-  if (index === -1) {
-    dispatchLoad()
-    return $children.length
-  } else {
-    return index
-  }
-})
+const children = writable([] as HTMLElement[])
+const status = new Map<HTMLElement, boolean>()
+
+const next = writable<number | null>(null)
+$: ($next === null) && dispatchLoad()
+function updateNext () {
+  const elem = $children.findIndex((i) => !status.get(i))
+  next.set(elem === -1 ? null : elem)
+}
 
 setContext(register)
-function register() {
-  const index = $children.length
-  $children[index] = false
-
-  function update(loaded: boolean) {
-    // Avoid unnecessary updates
-    if ($children[index] !== loaded) {
-      $children[index] = loaded
-    }
-  }
-
-  const status = derived(next, ($next) => {
-    if (index < $next) return STATUS.READY
-    if (index === $next) return STATUS.LOADING
-    return collapse ? STATUS.HIDDEN : STATUS.LOADING
+function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<STATUS_VALUES> {
+  children.update($children => {
+    $children.push(element)
+    return $children.sort(sortOnDocumentOrder)
   })
 
-  return {
-    status,
-    update,
-  }
+  const unsubscribe = loaded.subscribe(loaded => {
+    status.set(element, loaded)
+    updateNext()
+  })
+
+  onDestroy(() => {
+    unsubscribe()
+    status.delete(element)
+    children.update($children => {
+      return $children.filter(i => i !== element)
+    })
+    updateNext()
+  })
+
+  return derived([next, children], ([$next, $children]) => {
+    if ($next === null) {
+      return STATUS.READY
+    } else {
+      const index = $children.findIndex(i => i === element)
+      if (index < $next) return STATUS.READY
+      if (index === $next) return STATUS.LOADING
+      return collapse ? STATUS.HIDDEN : STATUS.LOADING
+    }
+  })
 }
 </script>
 

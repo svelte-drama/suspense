@@ -14,8 +14,12 @@ import * as LIST_STATUS from '$lib/_suspense-list/status'
 const dispatch = createEventDispatcher()
 const isBrowser = typeof window !== 'undefined'
 
-const { status: listStatus, update: listUpdate } = getListContext()
+const registerWithList = getListContext()
 setListContext()
+
+let element: HTMLDivElement
+const isLoaded = writable(true)
+$: listStatus = element && registerWithList(element, isLoaded)
 
 type Pending = {
   error?: Error
@@ -32,11 +36,11 @@ $: error && dispatch('error', error)
 const dispatchLoaded = debounce(() => {
   if (!loading && !error) {
     dispatch('load')
-    listUpdate(true)
+    isLoaded.set(true)
   }
 })
 $: loading = !isBrowser || $pendingValues.some((item) => !item.loaded)
-$: loading ? listUpdate(false) : dispatchLoaded()
+$: loading ? isLoaded.set(false) : dispatchLoaded()
 
 setContext(suspend)
 
@@ -90,7 +94,7 @@ function suspendPromise<T>(promise: Promise<T>) {
 {/if}
 
 {#if isBrowser}
-  <div hidden={!!error || loading || $listStatus !== LIST_STATUS.READY}>
+  <div bind:this={ element } hidden={!!error || loading || $listStatus !== LIST_STATUS.READY}>
     <slot {suspend} />
   </div>
 {/if}
