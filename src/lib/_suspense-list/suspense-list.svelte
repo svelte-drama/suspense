@@ -11,21 +11,22 @@ import { sortOnDocumentOrder } from './util'
 export let collapse = false
 
 const dispatch = createEventDispatcher()
-const dispatchLoad = debounce(() => {
-  if ($next === null) {
-    dispatch('load')
-  }
-})
 
 const children = writable([] as HTMLElement[])
 const status = new Map<HTMLElement, boolean>()
 
 const next = writable<number | null>(null)
-$: ($next === null) && dispatchLoad()
 function updateNext () {
   const elem = $children.findIndex((i) => !status.get(i))
   next.set(elem === -1 ? null : elem)
 }
+
+const isLoading = writable(false)
+const updateIsLoading = debounce((loading: boolean) => {
+  isLoading.set(loading)
+})
+$: updateIsLoading($next !== null)
+$: !$isLoading && dispatch('load')
 
 setContext(register)
 function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<STATUS_VALUES> {
@@ -61,4 +62,4 @@ function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<ST
 }
 </script>
 
-<slot />
+<slot loading={ $isLoading } />

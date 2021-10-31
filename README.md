@@ -72,7 +72,8 @@ const MyComponent = import('./my-component.svelte').then((m) => m.default)
 
 `<SuspenseList>` orchestrates the loading of all child `<Suspense>` containers. It guarantees they will load in display order. This is useful to avoid multiple, distracting pop-ins of content or reflow of elements while the user is reading.
 
-- _collapse_: Boolean, defaults to `false`. If `true`, only one loading state will be shown among the children.
+- _collapse_: Boolean. Defaults to `false`. If `true`, only one loading state will be shown among the children.
+- _let:loading: Boolean.  Indicates if any child Suspense component is still awaiting data.
 - _on:load_: Triggers when all components inside the `<SuspenseList>` have finished loading.
 
 ```svelte
@@ -84,7 +85,11 @@ import Post from './my-component.svelte'
 export let posts
 </script>
 
-<SuspenseList>
+<SuspenseList let:loading>
+  {#if loading}
+    <p>Fetching posts...</p>
+  {/if}
+
   {#each posts as post}
     <Suspense>
       <Post {post} />

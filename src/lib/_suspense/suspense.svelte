@@ -31,10 +31,9 @@ $: pendingValues = derived(pending, ($pending) => $pending)
 $: error = $pendingValues.find((item) => item.error)?.error
 $: error && dispatch('error', error)
 
-// Debounce to prevent dispatching multiple events when
-// requests are chained.
+// Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
-  if (!loading && !error) {
+  if (!loading) {
     dispatch('load')
     isLoaded.set(true)
   }
@@ -85,18 +84,18 @@ function suspendPromise<T>(promise: Promise<T>) {
 }
 </script>
 
+{#if isBrowser}
+  <div bind:this={ element } hidden={!!error || loading || $listStatus !== LIST_STATUS.READY}>
+    <slot {suspend} />
+  </div>
+{/if}
+
 {#if $listStatus === LIST_STATUS.HIDDEN}
   <!-- Hidden -->
 {:else if error}
   <slot name="error" {error} />
 {:else if loading || $listStatus === LIST_STATUS.LOADING}
   <slot name="loading" />
-{/if}
-
-{#if isBrowser}
-  <div bind:this={ element } hidden={!!error || loading || $listStatus !== LIST_STATUS.READY}>
-    <slot {suspend} />
-  </div>
 {/if}
 
 <style>
