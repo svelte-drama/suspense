@@ -24,9 +24,11 @@ function updateNext () {
 const isLoading = writable(false)
 const updateIsLoading = debounce((loading: boolean) => {
   isLoading.set(loading)
+  if (!loading) {
+    dispatch('load')
+  }
 })
 $: updateIsLoading($next !== null)
-$: !$isLoading && dispatch('load')
 
 setContext(register)
 function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<STATUS_VALUES> {

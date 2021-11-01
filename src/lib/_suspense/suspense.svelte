@@ -1,8 +1,8 @@
 <script lang="ts">
 import debounce from '$lib/_debounce'
-import { createEventDispatcher } from 'svelte'
+import { createEventDispatcher, onDestroy } from 'svelte'
 import { derived, writable, readable } from 'svelte/store'
-import type { Readable, Writable } from 'svelte/store'
+import type { Readable } from 'svelte/store'
 
 import { setContext } from './context'
 import {
@@ -14,32 +14,33 @@ import * as LIST_STATUS from '$lib/_suspense-list/status'
 const dispatch = createEventDispatcher()
 const isBrowser = typeof window !== 'undefined'
 
-const registerWithList = getListContext()
-setListContext()
+let pending: boolean[] = []
+let errors: (Error | undefined)[] = []
+let subscriptions: (() => void)[] = []
 
-let element: HTMLDivElement
-const isLoaded = writable(true)
-$: listStatus = element && registerWithList(element, isLoaded)
+onDestroy(() => {
+  subscriptions.forEach(unsubscribe => unsubscribe())
+})
 
-type Pending = {
-  error?: Error
-  loaded?: boolean
-}
-let pending: Readable<Pending>[] = []
-$: pendingValues = derived(pending, ($pending) => $pending)
-
-$: error = $pendingValues.find((item) => item.error)?.error
-$: error && dispatch('error', error)
+$: loading = pending.some(item => !item)
 
 // Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
   if (!loading) {
     dispatch('load')
-    isLoaded.set(true)
   }
 })
-$: loading = !isBrowser || $pendingValues.some((item) => !item.loaded)
-$: loading ? isLoaded.set(false) : dispatchLoaded()
+$: !loading && dispatchLoaded()
+
+$: error = errors.find(i => i)
+$: error && dispatch('error', error)
+
+let element: HTMLDivElement
+const registerWithList = getListContext()
+setListContext()
+const isLoaded = writable(true)
+$: $isLoaded = !loading
+$: listStatus = element && registerWithList(element, isLoaded)
 
 setContext(suspend)
 
@@ -64,22 +65,33 @@ function suspendStore<T>(
   data_store: Readable<T | undefined>,
   error_store: Readable<Error | undefined>
 ) {
+  const index = pending.length
+
   const store = derived([data_store, error_store], ([data, error]) => ({
     error: (data !== undefined ? undefined : error),
     loaded: data !== undefined,
   }))
-  pending.push(store)
-  pending = pending
+  subscriptions.push(store.subscribe(({ error, loaded }) => {
+    pending[index] = loaded
+    errors[index] = error
+  }))
+
   return data_store
 }
 
 function suspendPromise<T>(promise: Promise<T>) {
-  const store: Writable<Pending> = writable({})
+  const index = pending.length
+  pending[index] = false
+  errors[index] = undefined
+
   promise
-    .then(() => store.set({ loaded: true }))
-    .catch((error: Error) => store.set({ error }))
-  pending.push(store)
-  pending = pending
+    .then(() => {
+      pending[index] = true
+    })
+    .catch((error: Error) => {
+      errors[index] = error
+    })
+
   return promise
 }
 </script>
