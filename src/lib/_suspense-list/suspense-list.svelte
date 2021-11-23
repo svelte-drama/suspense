@@ -9,6 +9,7 @@ import type { STATUS_VALUES } from './status'
 import { sortOnDocumentOrder } from './util'
 
 export let collapse = false
+export let final = false
 
 const dispatch = createEventDispatcher()
 
@@ -32,6 +33,8 @@ $: updateIsLoading($next !== null)
 
 setContext(register)
 function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<STATUS_VALUES> {
+  let child_has_been_shown = false
+
   children.update($children => {
     $children.push(element)
     return $children.sort(sortOnDocumentOrder)
@@ -52,13 +55,21 @@ function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<ST
   })
 
   return derived([next, children], ([$next, $children]) => {
-    if ($next === null) {
+    if (final && child_has_been_shown) {
+      return STATUS.READY
+    } else if ($next === null) {
+      child_has_been_shown = true
       return STATUS.READY
     } else {
       const index = $children.findIndex(i => i === element)
-      if (index < $next) return STATUS.READY
-      if (index === $next) return STATUS.LOADING
-      return collapse ? STATUS.HIDDEN : STATUS.LOADING
+      if (index < $next) {
+        child_has_been_shown = true
+        return STATUS.READY
+      } else if (index === $next) {
+        return STATUS.LOADING
+      } else {
+        return collapse ? STATUS.HIDDEN : STATUS.LOADING
+      }
     }
   })
 }
