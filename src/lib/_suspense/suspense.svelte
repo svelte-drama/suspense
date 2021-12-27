@@ -19,10 +19,10 @@ let errors: (Error | undefined)[] = []
 let subscriptions: (() => void)[] = []
 
 onDestroy(() => {
-  subscriptions.forEach(unsubscribe => unsubscribe())
+  subscriptions.forEach((unsubscribe) => unsubscribe())
 })
 
-$: loading = pending.some(item => !item)
+$: loading = pending.some((item) => !item)
 
 // Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
@@ -32,7 +32,7 @@ const dispatchLoaded = debounce(() => {
 })
 $: !loading && dispatchLoaded()
 
-$: error = errors.find(i => i)
+$: error = errors.find((i) => i)
 $: error && dispatch('error', error)
 
 let element: HTMLDivElement
@@ -68,13 +68,15 @@ function suspendStore<T>(
   const index = pending.length
 
   const store = derived([data_store, error_store], ([data, error]) => ({
-    error: (data !== undefined ? undefined : error),
+    error: data !== undefined ? undefined : error,
     loaded: data !== undefined,
   }))
-  subscriptions.push(store.subscribe(({ error, loaded }) => {
-    pending[index] = loaded
-    errors[index] = error
-  }))
+  subscriptions.push(
+    store.subscribe(({ error, loaded }) => {
+      pending[index] = loaded
+      errors[index] = error
+    })
+  )
 
   return data_store
 }
@@ -97,7 +99,10 @@ function suspendPromise<T>(promise: Promise<T>) {
 </script>
 
 {#if isBrowser}
-  <div bind:this={ element } hidden={!!error || loading || $listStatus !== LIST_STATUS.READY}>
+  <div
+    bind:this={element}
+    hidden={!!error || loading || $listStatus !== LIST_STATUS.READY}
+  >
     <slot {suspend} />
   </div>
 {/if}

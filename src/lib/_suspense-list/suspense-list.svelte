@@ -17,7 +17,7 @@ const children = writable([] as HTMLElement[])
 const status = new Map<HTMLElement, boolean>()
 
 const next = writable<number | null>(null)
-function updateNext () {
+function updateNext() {
   const elem = $children.findIndex((i) => !status.get(i))
   next.set(elem === -1 ? null : elem)
 }
@@ -32,15 +32,18 @@ const updateIsLoading = debounce((loading: boolean) => {
 $: updateIsLoading($next !== null)
 
 setContext(register)
-function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<STATUS_VALUES> {
+function register(
+  element: HTMLElement,
+  loaded: Readable<boolean>
+): Readable<STATUS_VALUES> {
   let child_has_been_shown = false
 
-  children.update($children => {
+  children.update(($children) => {
     $children.push(element)
     return $children.sort(sortOnDocumentOrder)
   })
 
-  const unsubscribe = loaded.subscribe(loaded => {
+  const unsubscribe = loaded.subscribe((loaded) => {
     status.set(element, loaded)
     updateNext()
   })
@@ -48,8 +51,8 @@ function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<ST
   onDestroy(() => {
     unsubscribe()
     status.delete(element)
-    children.update($children => {
-      return $children.filter(i => i !== element)
+    children.update(($children) => {
+      return $children.filter((i) => i !== element)
     })
     updateNext()
   })
@@ -61,7 +64,7 @@ function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<ST
       child_has_been_shown = true
       return STATUS.READY
     } else {
-      const index = $children.findIndex(i => i === element)
+      const index = $children.findIndex((i) => i === element)
       if (index < $next) {
         child_has_been_shown = true
         return STATUS.READY
@@ -75,4 +78,4 @@ function register(element: HTMLElement, loaded: Readable<boolean>) : Readable<ST
 }
 </script>
 
-<slot loading={ $isLoading } />
+<slot loading={$isLoading} />

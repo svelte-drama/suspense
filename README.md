@@ -6,6 +6,12 @@ When requesting asynchronous data, a typical pattern is for a parent component t
 
 [See it in action](https://svelte.dev/repl/91183af6db654f2099806426ff3bbb4b?version=3.44.0)
 
+## Installation
+
+```
+npm install --save @svelte-drama/suspense
+```
+
 ## `createSuspense`
 
 Child components need to register what data they depend on. `createSuspense` returns a function to to handle orchestration between this component and its nearest descendant `<Suspense>` component.
@@ -73,8 +79,8 @@ const MyComponent = import('./my-component.svelte').then((m) => m.default)
 `<SuspenseList>` orchestrates the loading of all child `<Suspense>` containers. It guarantees they will load in display order. This is useful to avoid multiple, distracting pop-ins of content or reflow of elements while the user is reading.
 
 - _collapse_: Boolean. Defaults to `false`. If `true`, only one loading state will be shown among the children.
-- _final_: Boolean.  Defaults to `false`.  If `true`, children will not resuspend if they have been displayed, regardless of the state of previous siblings.
-- _let:loading_: Boolean.  Indicates if any child Suspense component is still awaiting data.
+- _final_: Boolean. Defaults to `false`. If `true`, children will not resuspend if they have been displayed, regardless of the state of previous siblings.
+- _let:loading_: Boolean. Indicates if any child Suspense component is still awaiting data.
 - _on:load_: Triggers when all components inside the `<SuspenseList>` have finished loading.
 
 ```svelte

@@ -2,9 +2,11 @@
 import { createSuspense } from '$lib'
 const suspend = createSuspense()
 
-suspend(new Promise(resolve => {
-  setTimeout(resolve, 1000)
-}))
+suspend(
+  new Promise((resolve) => {
+    setTimeout(resolve, 1000)
+  })
+)
 </script>
 
 <h1>Delayed</h1>

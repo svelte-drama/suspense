@@ -3,7 +3,7 @@
   "type": "module",
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "sideEffects": false,
   "scripts": {
     "dev": "svelte-kit dev",
@@ -14,19 +14,19 @@
     "lint": "eslint --ignore-path .gitignore ."
   },
   "devDependencies": {
-    "@sveltejs/kit": "^1.0.0-next.189",
+    "@sveltejs/kit": "^1.0.0-next.203",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",
     "eslint-plugin-svelte3": "^3.2.1",
-    "prettier": "^2.4.1",
-    "prettier-plugin-svelte": "^2.4.0",
-    "svelte": "^3.44.0",
-    "svelte-check": "^2.2.7",
-    "svelte-preprocess": "^4.9.8",
-    "svelte2tsx": "^0.4.7",
+    "prettier": "^2.5.1",
+    "prettier-plugin-svelte": "^2.5.1",
+    "svelte": "^3.44.3",
+    "svelte-check": "^2.2.11",
+    "svelte-preprocess": "^4.10.1",
+    "svelte2tsx": "^0.4.12",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.5.4"
   },
   "peerDependencies": {
     "svelte": "^3.44.0"
