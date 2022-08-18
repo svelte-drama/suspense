@@ -1,6 +1,6 @@
 <script>
 import { Suspense } from '$lib'
-import Apple from './_apple.svelte'
+import Apple from './apple.svelte'
 </script>
 
 <div class="grid">

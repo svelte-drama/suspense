@@ -1,9 +1,9 @@
 <script>
 import { SuspenseList } from '$lib'
-import Grid from './_grid.svelte'
-import Selector from './_selector.svelte'
+import Grid from './grid.svelte'
+import Selector from './selector.svelte'
 
-export let mode = 'without'
+let mode = 'without'
 
 function onLoad() {
   console.log('All apples loaded')

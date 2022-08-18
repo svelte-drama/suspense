@@ -1,6 +1,6 @@
 <script>
 import { Suspense } from '$lib'
-import Delayed from './_delayed.svelte'
+import Delayed from './delayed.svelte'
 </script>
 
 <Suspense on:load={() => console.log('Loaded Empty')}>

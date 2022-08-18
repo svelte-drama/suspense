@@ -1,7 +1,7 @@
 <script>
-import AlbumList from './_album-list.svelte'
-import Layout from './_layout.svelte'
-import Loading from './_loading.svelte'
+import AlbumList from './album-list.svelte'
+import Layout from './layout.svelte'
+import Loading from './loading.svelte'
 import { Suspense } from '$lib'
 </script>
 

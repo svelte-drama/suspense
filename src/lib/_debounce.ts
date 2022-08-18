@@ -1,10 +1,9 @@
 import { tick } from 'svelte'
 
-type func = (...args: unknown[]) => unknown
-export default function debounce<T extends func>(fn: T) {
+export default function debounce<Fn extends (...args: unknown[]) => unknown>(fn: Fn) {
   let guard: unknown
 
-  return async function (...args: Parameters<T>) {
+  return async function (...args: Parameters<Fn>) {
     const inner = {}
     guard = inner
 

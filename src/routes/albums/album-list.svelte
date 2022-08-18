@@ -1,6 +1,6 @@
 <script>
-import Album from './_album.svelte'
-import AlbumSkeleton from './_album-skeleton.svelte'
+import Album from './album.svelte'
+import AlbumSkeleton from './album-skeleton.svelte'
 import { createSuspense, Suspense, SuspenseList } from '$lib'
 const suspend = createSuspense()
 
