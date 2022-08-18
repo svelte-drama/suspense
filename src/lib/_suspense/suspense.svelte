@@ -14,15 +14,38 @@ import * as LIST_STATUS from '$lib/_suspense-list/status'
 const dispatch = createEventDispatcher()
 const isBrowser = typeof window !== 'undefined'
 
-let pending: boolean[] = []
-let errors: (Error | undefined)[] = []
-let subscriptions: (() => void)[] = []
+type SuspsendedRequest = {
+  loaded: boolean,
+  error: Error | undefined,
+  unsub: () => void
+}
 
-onDestroy(() => {
-  subscriptions.forEach((unsubscribe) => unsubscribe())
+let pending = new Map<symbol, SuspsendedRequest>()
+function removePending(index: symbol) {
+  const data = pending.get(index)
+  if (data) {
+    pending.delete(index)
+    data.unsub()
+    update()
+  }
+}
+function updatePending(index: symbol, data: SuspsendedRequest) {
+  pending.set(index, data)
+  update()
+}
+
+let loading = false
+let error: Error | undefined = undefined
+
+const update = debounce(() => {
+  const values = Array.from(pending.values())
+  loading = values.some(({ loaded }) => !loaded)
+  error = values.find(({ error }) => error)?.error
 })
 
-$: loading = pending.some((item) => !item)
+onDestroy(() => {
+  pending.forEach(({ unsub }) => unsub())
+})
 
 // Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
@@ -32,7 +55,6 @@ const dispatchLoaded = debounce(() => {
 })
 $: !loading && dispatchLoaded()
 
-$: error = errors.find((i) => i)
 $: error && dispatch('error', error)
 
 let element: HTMLDivElement
@@ -65,33 +87,46 @@ function suspendStore<T>(
   data_store: Readable<T | undefined>,
   error_store: Readable<Error | undefined>
 ) {
-  const index = pending.length
+  const index = Symbol()
 
   const store = derived([data_store, error_store], ([data, error]) => ({
     error: data !== undefined ? undefined : error,
     loaded: data !== undefined,
   }))
-  subscriptions.push(
-    store.subscribe(({ error, loaded }) => {
-      pending[index] = loaded
-      errors[index] = error
+  const unsub = store.subscribe(({ error, loaded }) => {
+    updatePending(index, {
+      loaded,
+      error,
+      unsub: () => unsub
     })
-  )
+  })
 
   return data_store
 }
 
 function suspendPromise<T>(promise: Promise<T>) {
-  const index = pending.length
-  pending[index] = false
-  errors[index] = undefined
+  const index = Symbol()
+  let aborted = false
+
+  const unsub = () => aborted = true
+
+  updatePending(index, {
+    loaded: false,
+    error: undefined,
+    unsub
+  })
 
   promise
     .then(() => {
-      pending[index] = true
+      removePending(index)
     })
     .catch((error: Error) => {
-      errors[index] = error
+      if (aborted) return
+      updatePending(index, {
+        loaded: true,
+        error,
+        unsub
+      })
     })
 
   return promise
