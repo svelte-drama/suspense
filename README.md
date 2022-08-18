@@ -20,6 +20,7 @@ Because it relies on [getContext](https://svelte.dev/docs#getContext), this must
 
 ```js
 import { createSuspense } from '@svelte-drama/suspense'
+
 const suspend = createSuspense()
 ```
 

@@ -1,7 +1,7 @@
 import { getContext as get, setContext as set } from 'svelte'
 import { readable } from 'svelte/store'
-import * as STATUS from './status.js'
 import type { Readable } from 'svelte/store'
+import * as STATUS from './status.js'
 import type { STATUS_VALUES } from './status.js'
 
 const key = {}

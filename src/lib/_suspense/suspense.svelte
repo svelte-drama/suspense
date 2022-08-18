@@ -1,22 +1,21 @@
 <script lang="ts">
-import debounce from '$lib/_debounce'
 import { createEventDispatcher, onDestroy } from 'svelte'
 import { derived, writable, readable } from 'svelte/store'
 import type { Readable } from 'svelte/store'
-
-import { setContext } from './context'
+import debounce from '$lib/_debounce'
 import {
   getContext as getListContext,
   setContext as setListContext,
 } from '$lib/_suspense-list/context'
 import * as LIST_STATUS from '$lib/_suspense-list/status'
+import { setContext } from './context'
 
 const dispatch = createEventDispatcher()
 const isBrowser = typeof window !== 'undefined'
 
 type SuspsendedRequest = {
-  loaded: boolean,
-  error: Error | undefined,
+  loaded: boolean
+  error: Error | undefined
   unsub: () => void
 }
 
@@ -64,7 +63,10 @@ const isLoaded = writable(true)
 $: $isLoaded = !loading
 $: listStatus = element && registerWithList(element, isLoaded)
 
-function internalSuspend<T>(data: Readable<T | undefined> | Promise<T>, error?: Readable<Error | undefined>) {
+function internalSuspend<T>(
+  data: Readable<T | undefined> | Promise<T>,
+  error?: Readable<Error | undefined>
+) {
   if ('subscribe' in data) {
     error = error || readable(undefined)
     return suspendStore(data, error)
@@ -101,7 +103,7 @@ function suspendStore<T>(
     updatePending(index, {
       loaded,
       error,
-      unsub: () => unsub
+      unsub: () => unsub,
     })
   })
 
@@ -112,12 +114,12 @@ function suspendPromise<T>(promise: Promise<T>) {
   const index = Symbol()
   let aborted = false
 
-  const unsub = () => aborted = true
+  const unsub = () => (aborted = true)
 
   updatePending(index, {
     loaded: false,
     error: undefined,
-    unsub
+    unsub,
   })
 
   promise
@@ -129,7 +131,7 @@ function suspendPromise<T>(promise: Promise<T>) {
       updatePending(index, {
         loaded: true,
         error,
-        unsub
+        unsub,
       })
     })
 

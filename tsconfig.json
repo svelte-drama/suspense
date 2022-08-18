@@ -6,5 +6,5 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "target": "es2022"
-  },
+  }
 }

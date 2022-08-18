@@ -1,4 +1,11 @@
 {
+  "importOrder": [
+    "<THIRD_PARTY_MODULES>",
+    "^\\w(.*)$",
+    "^@(.*)$",
+    "^\\$(.*)$",
+    "^\\.(.*)$"
+  ],
   "semi": false,
   "singleQuote": true,
   "svelteIndentScriptAndStyle": false

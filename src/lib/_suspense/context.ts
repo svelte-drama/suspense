@@ -6,7 +6,10 @@ import type { Readable } from 'svelte/store'
 const key = Symbol.for('SUSPENSE_CONTEXT')
 
 type InternalSuspend = {
-  (data: Promise<unknown> | Readable<unknown>, error?: Readable<Error | undefined>): () => void
+  (
+    data: Promise<unknown> | Readable<unknown>,
+    error?: Readable<Error | undefined>
+  ): () => void
 }
 type Suspend = {
   <T extends Promise<unknown>>(data: T): T
@@ -24,9 +27,12 @@ export function createSuspense(): Suspend {
   }
 
   const subscriptions: (() => void)[] = []
-  onDestroy(() => subscriptions.forEach(unsub => unsub()))
+  onDestroy(() => subscriptions.forEach((unsub) => unsub()))
 
-  function result(data: Promise<unknown> | Readable<unknown>, error?: Readable<Error | undefined>) {
+  function result(
+    data: Promise<unknown> | Readable<unknown>,
+    error?: Readable<Error | undefined>
+  ) {
     const unsub = suspend(data, error)
     subscriptions.push(unsub)
     return data
