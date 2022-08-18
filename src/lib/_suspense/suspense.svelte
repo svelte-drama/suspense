@@ -64,23 +64,27 @@ const isLoaded = writable(true)
 $: $isLoaded = !loading
 $: listStatus = element && registerWithList(element, isLoaded)
 
-setContext(suspend)
-
-export function suspend<T>(
-  data: Readable<T | undefined>,
-  error?: Readable<Error | undefined>
-): Readable<T | undefined>
-function suspend<T>(data: Promise<T>): Promise<T>
-function suspend<T>(
-  data: Readable<T | undefined> | Promise<T>,
-  error?: Readable<Error | undefined>
-) {
+function internalSuspend<T>(data: Readable<T | undefined> | Promise<T>, error?: Readable<Error | undefined>) {
   if ('subscribe' in data) {
     error = error || readable(undefined)
     return suspendStore(data, error)
   } else {
     return suspendPromise(data)
   }
+}
+setContext(internalSuspend)
+
+function suspend<T extends Promise<unknown>>(data: T): T
+export function suspend<T extends Readable<unknown>>(
+  data: T,
+  error?: Readable<Error | undefined>
+): T
+function suspend(
+  data: Promise<unknown> | Readable<unknown>,
+  error?: Readable<Error | undefined>
+) {
+  internalSuspend(data, error)
+  return data
 }
 
 function suspendStore<T>(
@@ -101,7 +105,7 @@ function suspendStore<T>(
     })
   })
 
-  return data_store
+  return unsub
 }
 
 function suspendPromise<T>(promise: Promise<T>) {
@@ -129,7 +133,7 @@ function suspendPromise<T>(promise: Promise<T>) {
       })
     })
 
-  return promise
+  return unsub
 }
 </script>
 
