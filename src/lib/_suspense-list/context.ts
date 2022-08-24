@@ -1,12 +1,10 @@
 import { getContext as get, setContext as set } from 'svelte'
-import { readable } from 'svelte/store'
-import type { Readable } from 'svelte/store'
-import * as STATUS from './status.js'
-import type { STATUS_VALUES } from './status.js'
+import { readable, type Readable } from 'svelte/store'
+import { STATUS } from './status.js'
 
 const key = {}
 
-type SuspenseListContext = Readable<STATUS_VALUES>
+type SuspenseListContext = Readable<STATUS>
 type RegisterFunction = (
   element: HTMLElement,
   loaded: Readable<boolean>

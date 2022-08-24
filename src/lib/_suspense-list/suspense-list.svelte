@@ -1,11 +1,12 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
 import { createEventDispatcher, onDestroy } from 'svelte'
 import { derived, writable } from 'svelte/store'
 import type { Readable } from 'svelte/store'
 import debounce from '$lib/_debounce'
 import { setContext } from './context'
-import * as STATUS from './status'
-import type { STATUS_VALUES } from './status'
+import { STATUS } from './status'
 import { sortOnDocumentOrder } from './util'
 
 export let collapse = false
@@ -35,12 +36,12 @@ setContext(register)
 function register(
   element: HTMLElement,
   loaded: Readable<boolean>
-): Readable<STATUS_VALUES> {
+): Readable<STATUS> {
   let child_has_been_shown = false
 
   children.update(($children) => {
-    $children.push(element)
-    return $children.sort(sortOnDocumentOrder)
+    const data = [...$children, element]
+    return data.sort(sortOnDocumentOrder)
   })
 
   const unsubscribe = loaded.subscribe((loaded) => {

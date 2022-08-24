@@ -8,7 +8,7 @@ import {
   getContext as getListContext,
   setContext as setListContext,
 } from '$lib/_suspense-list/context'
-import * as LIST_STATUS from '$lib/_suspense-list/status'
+import { STATUS } from '$lib/_suspense-list/status'
 import { setContext } from './context'
 
 const dispatch = createEventDispatcher()
@@ -144,17 +144,17 @@ function suspendPromise<T>(promise: Promise<T>) {
 {#if isBrowser}
   <div
     bind:this={element}
-    hidden={!!error || loading || $listStatus !== LIST_STATUS.READY}
+    hidden={!!error || loading || $listStatus !== STATUS.READY}
   >
     <slot {suspend} />
   </div>
 {/if}
 
-{#if $listStatus === LIST_STATUS.HIDDEN}
+{#if $listStatus === STATUS.HIDDEN}
   <!-- Hidden -->
 {:else if error}
   <slot name="error" {error} />
-{:else if loading || $listStatus === LIST_STATUS.LOADING}
+{:else if loading || $listStatus === STATUS.LOADING}
   <slot name="loading" />
 {/if}
 
