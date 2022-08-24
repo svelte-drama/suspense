@@ -30,6 +30,7 @@ button {
   width: 100%;
 }
 button.active {
+  background: none;
   border-color: black;
 }
 </style>

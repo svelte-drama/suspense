@@ -1,7 +1,8 @@
+<svelte:options immutable={true} />
+
 <script lang="ts">
 import { createEventDispatcher, onDestroy } from 'svelte'
-import { derived, writable, readable } from 'svelte/store'
-import type { Readable } from 'svelte/store'
+import { derived, writable, readable, type Readable } from 'svelte/store'
 import debounce from '$lib/_debounce'
 import {
   getContext as getListContext,
@@ -30,6 +31,7 @@ function removePending(index: symbol) {
 }
 function updatePending(index: symbol, data: SuspsendedRequest) {
   pending.set(index, data)
+  if (!data.loaded) loading = true
   update()
 }
 

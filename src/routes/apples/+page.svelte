@@ -23,7 +23,7 @@ function onLoad() {
   </SuspenseList>
 {/if}
 {#if mode === 'collapse'}
-  <SuspenseList collapse on:load={onLoad}>
+  <SuspenseList collapse final on:load={onLoad}>
     <Grid />
   </SuspenseList>
 {/if}
