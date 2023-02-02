@@ -11,7 +11,10 @@ import {
 import { STATUS } from '$lib/_suspense-list/status'
 import { setContext } from './context'
 
-const dispatch = createEventDispatcher()
+const dispatch = createEventDispatcher<{
+  error: Error
+  load: { element: HTMLElement }
+}>()
 const isBrowser = typeof window !== 'undefined'
 
 type SuspsendedRequest = {
@@ -51,7 +54,7 @@ onDestroy(() => {
 // Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
   if (!loading) {
-    dispatch('load')
+    dispatch('load', { element })
   }
 })
 $: !loading && dispatchLoaded()

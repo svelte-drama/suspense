@@ -62,7 +62,7 @@ const MyComponent = import('./my-component.svelte').then((m) => m.default)
 
 <Suspense
   let:suspend
-  on:error={(e) => console.error(e.details)}
+  on:error={(e) => console.error(e.detail)}
   on:load={() => console.log('loaded')}
 >
   <p slot="loading">Loading...</p>

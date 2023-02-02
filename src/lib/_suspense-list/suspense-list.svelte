@@ -12,8 +12,11 @@ import { sortOnDocumentOrder } from './util'
 export let collapse = false
 export let final = false
 
-const dispatch = createEventDispatcher()
+const dispatch = createEventDispatcher<{
+  load: { element: HTMLElement }
+}>()
 
+let element: HTMLElement
 const children = writable([] as HTMLElement[])
 const status = new Map<HTMLElement, boolean>()
 
@@ -27,7 +30,7 @@ const isLoading = writable(false)
 const updateIsLoading = debounce((loading: boolean) => {
   isLoading.set(loading)
   if (!loading) {
-    dispatch('load')
+    dispatch('load', { element })
   }
 })
 $: updateIsLoading($next !== null)
@@ -79,4 +82,12 @@ function register(
 }
 </script>
 
-<slot loading={$isLoading} />
+<div bind:this={element}>
+  <slot loading={$isLoading} />
+</div>
+
+<style>
+div {
+  display: contents;
+}
+</style>
