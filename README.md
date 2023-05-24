@@ -27,17 +27,17 @@ const suspend = createSuspense()
 The resulting function, `suspend`, can be used in to wait for promises or stores.
 
 ```js
-suspend(data: Promise) => data
+suspend<T>(data: Promise<T>) => Promise<T>
 ```
 
-Register a promise. This returns a promise, allowing it to be used as part of a promise chain. The containing `<Suspense>` component will display its `loading` state until the promise is resolved. If the promise is rejected, it will instead show the `error` state.
+Wrap a promise. This returns a promise, allowing it to be used as part of a promise chain. The containing `<Suspense>` component will display its `loading` state until the promise is resolved. If the promise is rejected, it will instead show the `error` state.
 
 ```js
-suspend(data: Readable) => data
-suspend(data: Readable, error: Readable) => data
+suspend<T>(data: Readable<T>) => Readable<T>
+suspend<T>(data: Readable<T>, error: Readable) => Readable<T>
 ```
 
-Register a store. `<Suspense>` will consider this resolved as long as `data` resolves to not `undefined`. If `error` is passed in, `<Suspense>` will display the error state as long as `data` is undefined and `error` is not.
+Wrap a store. `<Suspense>` will consider this resolved as long as `data` resolves to not `undefined`. If `error` is passed in, `<Suspense>` will display the error state as long as `data` is undefined and `error` is not.
 
 ## `<Suspense>`
 

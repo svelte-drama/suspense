@@ -1,13 +1,13 @@
 <script lang="ts">
-import { readable } from "svelte/store"
-import Status from "./status.svelte"
-import List from "./list.svelte"
+import { readable } from 'svelte/store'
+import List from './list.svelte'
+import Status from './status.svelte'
 
 const OPTIONS = [undefined, true, true]
 function createStore() {
-  return readable<undefined | boolean>(undefined, set => {
+  return readable<undefined | boolean>(undefined, (set) => {
     let timer: ReturnType<typeof setTimeout>
-    
+
     function update() {
       const timeout = 1500
       const value = OPTIONS[Math.floor(Math.random() * 3)]
@@ -22,7 +22,13 @@ function createStore() {
   })
 }
 
-const stores = [createStore(), createStore(), createStore(), createStore(), createStore()]
+const stores = [
+  createStore(),
+  createStore(),
+  createStore(),
+  createStore(),
+  createStore(),
+]
 </script>
 
 <h1>Stores</h1>

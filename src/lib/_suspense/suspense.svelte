@@ -98,9 +98,8 @@ export function suspend(
   data: Promise<unknown> | Readable<unknown>,
   error?: Readable<Error | undefined>
 ) {
-  const { result } = ('subscribe' in data)
-    ? internalSuspend(data, error)
-    : internalSuspend(data)
+  const { result } =
+    'subscribe' in data ? internalSuspend(data, error) : internalSuspend(data)
   return result
 }
 
@@ -109,19 +108,25 @@ function suspendStore<T>(
   error_store: Readable<Error | undefined>
 ) {
   const index = Symbol()
-  const abort = () => removePending(index)
+  let aborted = false
+  const abort = () => {
+    aborted = true
+    removePending(index)
+  }
 
   const observer = readable(undefined, () => {
-    return abort
+    return () => removePending(index)
   })
   const result = derived(
     [data_store, error_store, observer],
     ([data, error]) => {
-      updatePending(index, {
-        loaded: data !== undefined,
-        error: data !== undefined ? undefined : error,
-        unsub: () => {},
-      })
+      if (!aborted) {
+        updatePending(index, {
+          loaded: data !== undefined,
+          error: data !== undefined ? undefined : error,
+          unsub: () => {},
+        })
+      }
       return data
     }
   )

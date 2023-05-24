@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Suspense } from "$lib"
-import SuspenseList from "$lib/_suspense-list/suspense-list.svelte"
-import type { Readable } from "svelte/store"
-import Status from "./status.svelte"
+import type { Readable } from 'svelte/store'
+import { Suspense } from '$lib'
+import SuspenseList from '$lib/_suspense-list/suspense-list.svelte'
+import Status from './status.svelte'
 
 export let collapse: boolean
 export let final: boolean

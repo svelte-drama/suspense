@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Readable } from "svelte/store"
+import type { Readable } from 'svelte/store'
 
 export let store: Readable<boolean | undefined>
 </script>
@@ -7,7 +7,7 @@ export let store: Readable<boolean | undefined>
 <li>
   {#if $store === true}
     ✔️
-  {:else }
+  {:else}
     ⌛
   {/if}
 </li>
