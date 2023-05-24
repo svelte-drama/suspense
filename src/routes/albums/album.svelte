@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
 import { createSuspense } from '$lib'
-import { writable } from 'svelte/store'
+
 const suspend = createSuspense()
 
 export let album
 
-const loaded = suspend(writable(undefined))
-const onLoad = () => loaded.set(true)
+let onLoad: (value: unknown) => void
+const loaded = new Promise((resolve) => (onLoad = resolve))
+suspend(loaded)
 
 $: src = album['im:image'][2].label
 $: title = album['im:name'].label

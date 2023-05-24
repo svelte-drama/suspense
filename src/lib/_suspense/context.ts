@@ -5,15 +5,19 @@ import type { Readable } from 'svelte/store'
 // once for each package that depends on it.
 const key = Symbol.for('SUSPENSE_CONTEXT')
 
-type InternalSuspend = {
-  (
-    data: Promise<unknown> | Readable<unknown>,
-    error?: Readable<Error | undefined>
-  ): () => void
+export type InternalSuspend = {
+  <T>(data: Promise<T>): {
+    abort: () => void
+    result: Promise<T>
+  }
+  <T>(data: Readable<T>, error?: Readable<Error | undefined>): {
+    abort: () => void
+    result: Readable<T>
+  }
 }
 type Suspend = {
-  <T extends Promise<unknown>>(data: T): T
-  <T extends Readable<unknown>>(data: T, error?: Readable<Error | undefined>): T
+  <T>(data: Promise<T>): Promise<T>
+  <T>(data: Readable<T>, error?: Readable<Error | undefined>): Readable<T>
 }
 function mock<T>(data: T) {
   return data
@@ -29,13 +33,19 @@ export function createSuspense(): Suspend {
   const subscriptions: (() => void)[] = []
   onDestroy(() => subscriptions.forEach((unsub) => unsub()))
 
-  function result(
-    data: Promise<unknown> | Readable<unknown>,
+  function result<T>(data: Promise<T>): Promise<T>
+  function result<T>(
+    data: Readable<T>,
     error?: Readable<Error | undefined>
-  ) {
-    const unsub = suspend(data, error)
-    subscriptions.push(unsub)
-    return data
+  ): Readable<T>
+  function result<T>(
+    data: Promise<T> | Readable<T>,
+    error?: Readable<Error | undefined>
+  ): Promise<T> | Readable<T> {
+    const { abort, result } =
+      'subscribe' in data ? suspend(data, error) : suspend(data)
+    subscriptions.push(abort)
+    return result
   }
   return result
 }

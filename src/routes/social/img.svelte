@@ -1,12 +1,15 @@
-<script>
-import { writable } from 'svelte/store'
+<script lang="ts">
 import { createSuspense } from '$lib'
+
 const suspend = createSuspense()
 
-const loaded = suspend(writable(undefined))
-const resolve = () => loaded.set(true)
-
 export let src
+
+let onLoad: (value: unknown) => void
+const loaded = new Promise((resolve) => {
+  onLoad = resolve
+})
+suspend(loaded)
 </script>
 
-<img alt="" {src} on:load={resolve} on:error={resolve} />
+<img alt="" {src} on:load={onLoad} on:error={onLoad} />

@@ -9,7 +9,7 @@ import {
   setContext as setListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
-import { setContext } from './context'
+import { setContext, type InternalSuspend } from './context'
 
 const dispatch = createEventDispatcher<{
   error: Error
@@ -68,10 +68,18 @@ const isLoaded = writable(true)
 $: $isLoaded = !loading
 $: listStatus = element && registerWithList(element, isLoaded)
 
+function internalSuspend<T>(data: Promise<T>): {
+  abort: () => void
+  result: Promise<T>
+}
 function internalSuspend<T>(
-  data: Readable<T | undefined> | Promise<T>,
+  data: Readable<T>,
   error?: Readable<Error | undefined>
-) {
+): { abort: () => void; result: Readable<T> }
+function internalSuspend<T>(
+  data: Promise<T> | Readable<T>,
+  error?: Readable<Error | undefined>
+): { abort: () => void; result: Promise<T> | Readable<T> } {
   if ('subscribe' in data) {
     error = error || readable(undefined)
     return suspendStore(data, error)
@@ -90,29 +98,40 @@ function suspend(
   data: Promise<unknown> | Readable<unknown>,
   error?: Readable<Error | undefined>
 ) {
-  internalSuspend(data, error)
+  if ('subscribe' in data) {
+    internalSuspend(data, error)
+  } else {
+    internalSuspend(data)
+  }
   return data
 }
 
 function suspendStore<T>(
-  data_store: Readable<T | undefined>,
+  data_store: Readable<T>,
   error_store: Readable<Error | undefined>
 ) {
   const index = Symbol()
+  const abort = () => removePending(index)
 
-  const store = derived([data_store, error_store], ([data, error]) => ({
-    error: data !== undefined ? undefined : error,
-    loaded: data !== undefined,
-  }))
-  const unsub = store.subscribe(({ error, loaded }) => {
-    updatePending(index, {
-      loaded,
-      error,
-      unsub: () => unsub,
-    })
+  const observer = readable(undefined, () => {
+    return abort
   })
+  const result = derived(
+    [data_store, error_store, observer],
+    ([data, error]) => {
+      updatePending(index, {
+        loaded: data !== undefined,
+        error: data !== undefined ? undefined : error,
+        unsub: () => {},
+      })
+      return data
+    }
+  )
 
-  return unsub
+  return {
+    abort,
+    result,
+  }
 }
 
 function suspendPromise<T>(promise: Promise<T>) {
@@ -127,20 +146,26 @@ function suspendPromise<T>(promise: Promise<T>) {
     unsub,
   })
 
-  promise
-    .then(() => {
+  const result = promise
+    .then((data) => {
       removePending(index)
+      return data
     })
     .catch((error: Error) => {
-      if (aborted) return
-      updatePending(index, {
-        loaded: true,
-        error,
-        unsub,
-      })
+      if (!aborted) {
+        updatePending(index, {
+          loaded: true,
+          error,
+          unsub,
+        })
+      }
+      throw error
     })
 
-  return unsub
+  return {
+    abort: unsub,
+    result,
+  }
 }
 </script>
 
