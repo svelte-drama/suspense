@@ -89,21 +89,19 @@ function internalSuspend<T>(
 }
 setContext(internalSuspend)
 
-function suspend<T extends Promise<unknown>>(data: T): T
+export function suspend<T extends Promise<unknown>>(data: T): T
 export function suspend<T extends Readable<unknown>>(
   data: T,
   error?: Readable<Error | undefined>
 ): T
-function suspend(
+export function suspend(
   data: Promise<unknown> | Readable<unknown>,
   error?: Readable<Error | undefined>
 ) {
-  if ('subscribe' in data) {
-    internalSuspend(data, error)
-  } else {
-    internalSuspend(data)
-  }
-  return data
+  const { result } = ('subscribe' in data)
+    ? internalSuspend(data, error)
+    : internalSuspend(data)
+  return result
 }
 
 function suspendStore<T>(

@@ -13,4 +13,7 @@
   <li>
     <a href="/social">Social</a>
   </li>
+  <li>
+    <a href="/suspense-list">Suspense List</a>
+  </li>
 </ul>
