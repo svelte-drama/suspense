@@ -28,7 +28,8 @@ const friend = getResource().friend()
 header {
   align-items: center;
   background-color: #2d3748;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 10%),
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 10%),
     0 10px 10px -5px rgb(0 0 0 / 4%);
   color: rgba(226, 232, 240);
   display: flex;

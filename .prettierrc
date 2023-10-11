@@ -1,4 +1,8 @@
 {
+  "plugins": [
+    "prettier-plugin-svelte",
+    "@trivago/prettier-plugin-sort-imports"
+  ],
   "importOrder": [
     "<THIRD_PARTY_MODULES>",
     "^\\w(.*)$",
@@ -8,5 +12,6 @@
   ],
   "semi": false,
   "singleQuote": true,
-  "svelteIndentScriptAndStyle": false
+  "svelteIndentScriptAndStyle": false,
+  "trailingComma": "es5"
 }

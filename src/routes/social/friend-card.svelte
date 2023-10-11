@@ -38,7 +38,9 @@ let posts = getResource().posts()
 section {
   background: white;
   border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 10%),
+    0 4px 6px -2px rgb(0 0 0 / 5%);
   overflow: hidden;
 }
 .cover {
@@ -71,7 +73,9 @@ header > div {
 img {
   border: 0.25em solid white;
   border-radius: 50%;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%);
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 10%),
+    0 1px 2px 0 rgb(0 0 0 / 6%);
   height: 5.75em;
   position: relative;
   width: 5.75em;

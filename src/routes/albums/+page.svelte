@@ -1,17 +1,17 @@
 <script>
 import AlbumList from './album-list.svelte'
-import Layout from './layout.svelte'
+import PageLayout from './page-layout.svelte'
 import Loading from './loading.svelte'
 import { Suspense } from '$lib'
 </script>
 
-<Layout>
+<PageLayout>
   <Suspense>
     <AlbumList />
     <Loading slot="loading" />
     <p slot="error">Error!</p>
   </Suspense>
-</Layout>
+</PageLayout>
 
 <style>
 :global(body) {

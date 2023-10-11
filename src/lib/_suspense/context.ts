@@ -10,7 +10,10 @@ export type InternalSuspend = {
     abort: () => void
     result: Promise<T>
   }
-  <T>(data: Readable<T>, error?: Readable<Error | undefined>): {
+  <T>(
+    data: Readable<T>,
+    error?: Readable<Error | undefined>
+  ): {
     abort: () => void
     result: Readable<T>
   }

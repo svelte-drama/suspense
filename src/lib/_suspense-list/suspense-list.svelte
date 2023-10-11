@@ -32,7 +32,7 @@ const status = writable<{
   next: HTMLElement | null
 }>({
   loaded: new Set(),
-  next: null
+  next: null,
 })
 
 const updateNext = debounce(() => {
@@ -46,13 +46,13 @@ const updateNext = debounce(() => {
     loading = false
     status.set({
       loaded: new Set(elements),
-      next: null
+      next: null,
     })
   } else {
     loading = true
     status.set({
       loaded: new Set(elements.slice(0, index)),
-      next: elements[index]
+      next: elements[index],
     })
   }
 })
