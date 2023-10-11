@@ -17,14 +17,45 @@ const dispatch = createEventDispatcher<{
 }>()
 
 let element: HTMLElement
-const children = writable([] as HTMLElement[])
-const status = new Map<HTMLElement, boolean>()
+let elements: HTMLElement[] | undefined
+let destroyed = false
+let loading = false
+const watching = new Map<HTMLElement, boolean>()
 
-const next = writable<number | null>(null)
-function updateNext() {
-  const elem = $children.findIndex((i) => !status.get(i))
-  next.set(elem === -1 ? null : elem)
-}
+onDestroy(() => {
+  destroyed = true
+  watching.clear()
+})
+
+const status = writable<{
+  loaded: Set<HTMLElement>
+  next: HTMLElement | null
+}>({
+  loaded: new Set(),
+  next: null
+})
+
+const updateNext = debounce(() => {
+  if (!elements) {
+    elements = [...watching.keys()].sort(sortOnDocumentOrder)
+  }
+
+  const index = elements.findIndex((i) => !watching.get(i))
+
+  if (index === -1) {
+    loading = false
+    status.set({
+      loaded: new Set(elements),
+      next: null
+    })
+  } else {
+    loading = true
+    status.set({
+      loaded: new Set(elements.slice(0, index)),
+      next: elements[index]
+    })
+  }
+})
 
 const isLoading = writable(false)
 const updateIsLoading = debounce((loading: boolean) => {
@@ -33,7 +64,7 @@ const updateIsLoading = debounce((loading: boolean) => {
     dispatch('load', { element })
   }
 })
-$: updateIsLoading($next !== null)
+$: updateIsLoading(loading)
 
 setContext(register)
 function register(
@@ -41,42 +72,38 @@ function register(
   loaded: Readable<boolean>
 ): Readable<STATUS> {
   let child_has_been_shown = false
-
-  children.update(($children) => {
-    const data = [...$children, element]
-    return data.sort(sortOnDocumentOrder)
-  })
+  let registered = false
+  loading = true
 
   const unsubscribe = loaded.subscribe((loaded) => {
-    status.set(element, loaded)
+    if (!registered) {
+      registered = true
+      elements = undefined
+    }
+    watching.set(element, loaded)
     updateNext()
   })
 
   onDestroy(() => {
     unsubscribe()
-    status.delete(element)
-    children.update(($children) => {
-      return $children.filter((i) => i !== element)
-    })
-    updateNext()
+
+    if (!destroyed) {
+      watching.delete(element)
+      elements = undefined
+      updateNext()
+    }
   })
 
-  return derived([next, children], ([$next, $children]) => {
+  return derived(status, ($status) => {
     if (final && child_has_been_shown) {
       return STATUS.READY
-    } else if ($next === null) {
+    } else if ($status.next === element) {
+      return STATUS.LOADING
+    } else if ($status.loaded.has(element)) {
       child_has_been_shown = true
       return STATUS.READY
     } else {
-      const index = $children.findIndex((i) => i === element)
-      if (index < $next) {
-        child_has_been_shown = true
-        return STATUS.READY
-      } else if (index === $next) {
-        return STATUS.LOADING
-      } else {
-        return collapse ? STATUS.HIDDEN : STATUS.LOADING
-      }
+      return collapse ? STATUS.HIDDEN : STATUS.LOADING
     }
   })
 }

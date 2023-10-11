@@ -4,7 +4,7 @@ import Apple from './apple.svelte'
 </script>
 
 <div class="grid">
-  {#each Array(500) as _}
+  {#each Array(2000) as _}
     <div>
       <Suspense>
         <Apple />
