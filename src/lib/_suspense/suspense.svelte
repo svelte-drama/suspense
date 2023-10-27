@@ -9,7 +9,7 @@ import {
   setContext as setListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
-import { setContext, type InternalSuspend } from './context'
+import { setContext } from './context'
 
 const dispatch = createEventDispatcher<{
   error: Error
@@ -23,7 +23,7 @@ type SuspsendedRequest = {
   unsub: () => void
 }
 
-let pending = new Map<symbol, SuspsendedRequest>()
+const pending = new Map<symbol, SuspsendedRequest>()
 function removePending(index: symbol) {
   const data = pending.get(index)
   if (data) {
@@ -49,6 +49,7 @@ const update = debounce(() => {
 
 onDestroy(() => {
   pending.forEach(({ unsub }) => unsub())
+  pending.clear()
 })
 
 // Debounce to prevent dispatching multiple events when requests are chained.
@@ -109,9 +110,13 @@ function suspendStore<T>(
 ) {
   const index = Symbol()
   let aborted = false
+
   const abort = () => {
     aborted = true
     removePending(index)
+  }
+  const unsub = () => {
+    aborted = true
   }
 
   const observer = readable(undefined, () => {
@@ -124,7 +129,7 @@ function suspendStore<T>(
         updatePending(index, {
           loaded: data !== undefined,
           error: data !== undefined ? undefined : error,
-          unsub: () => {},
+          unsub,
         })
       }
       return data
@@ -141,7 +146,13 @@ function suspendPromise<T>(promise: Promise<T>) {
   const index = Symbol()
   let aborted = false
 
-  const unsub = () => (aborted = true)
+  const abort = () => {
+    aborted = true
+    removePending(index)
+  }
+  const unsub = () => {
+    aborted = true
+  }
 
   updatePending(index, {
     loaded: false,
@@ -166,7 +177,7 @@ function suspendPromise<T>(promise: Promise<T>) {
     })
 
   return {
-    abort: unsub,
+    abort,
     result,
   }
 }
