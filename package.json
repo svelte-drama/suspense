@@ -4,7 +4,7 @@
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
   "packageManager": "pnpm@8.11.0",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "sideEffects": false,
   "scripts": {
     "dev": "vite dev",
@@ -16,8 +16,8 @@
   },
   "exports": {
     ".": {
-      "svelte": "./dist/index.js",
       "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
