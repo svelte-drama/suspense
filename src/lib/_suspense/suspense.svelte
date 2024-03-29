@@ -13,7 +13,7 @@ import { setContext } from './context'
 
 const dispatch = createEventDispatcher<{
   error: Error
-  load: { element: HTMLElement }
+  load: { element: HTMLElement | undefined }
 }>()
 const isBrowser = typeof window !== 'undefined'
 
