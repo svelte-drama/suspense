@@ -1,6 +1,6 @@
-<div class="img" />
-<div class="title" />
-<div class="artist" />
+<div class="img"></div>
+<div class="title"></div>
+<div class="artist"></div>
 
 <style>
 div {

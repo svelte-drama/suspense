@@ -12,7 +12,7 @@ let posts = getResource().posts()
     <div
       class="cover"
       style="background-image: url('http://placekitten.com/800/200?image={friend.id}')"
-    />
+    ></div>
 
     <header>
       <div>

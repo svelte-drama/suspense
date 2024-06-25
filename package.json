@@ -4,12 +4,12 @@
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
   "packageManager": "pnpm@8.11.0",
-  "version": "0.4.7",
+  "version": "0.5.0",
   "sideEffects": false,
   "scripts": {
     "dev": "vite dev",
     "package": "svelte-kit sync && svelte-package && publint",
-    "prepare": "husky install",
+    "prepare": "husky",
     "prepublishOnly": "npm run package",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "format": "prettier --plugin prettier-plugin-svelte --write ."
@@ -27,28 +27,23 @@
     "!dist/**/*.spec.*"
   ],
   "peerDependencies": {
-    "svelte": "^3.54.0 || ^4.0.0"
+    "svelte": "^3.54.0 || ^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^3.0.0",
-    "@sveltejs/kit": "^2.0.0",
-    "@sveltejs/package": "^2.2.3",
+    "@sveltejs/adapter-auto": "^3.2.2",
+    "@sveltejs/kit": "^2.5.17",
+    "@sveltejs/package": "^2.3.2",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
     "cross-spawn": "^7.0.3",
-    "eslint": "^8.55.0",
-    "eslint-config-prettier": "^9.1.0",
-    "husky": "^8.0.3",
-    "prettier": "^3.1.1",
-    "prettier-plugin-svelte": "^3.1.2",
-    "publint": "^0.2.6",
-    "svelte": "^4.2.8",
-    "svelte-check": "^3.6.2",
-    "svelte-preprocess": "^5.1.2",
-    "tslib": "^2.6.2",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.10"
+    "husky": "^9.0.11",
+    "prettier": "^3.3.2",
+    "prettier-plugin-svelte": "^3.2.5",
+    "publint": "^0.2.8",
+    "svelte": "^4.2.18",
+    "svelte-check": "^3.8.2",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.1"
   },
   "repository": {
     "type": "git",
