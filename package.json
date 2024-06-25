@@ -4,7 +4,7 @@
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
   "packageManager": "pnpm@8.11.0",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "sideEffects": false,
   "scripts": {
     "dev": "vite dev",
@@ -33,6 +33,7 @@
     "@sveltejs/adapter-auto": "^3.2.2",
     "@sveltejs/kit": "^2.5.17",
     "@sveltejs/package": "^2.3.2",
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "cross-spawn": "^7.0.3",
     "husky": "^9.0.11",
