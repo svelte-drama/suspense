@@ -1,6 +1,4 @@
 <script>
-import { run } from 'svelte/legacy'
-
 import './global.css'
 import Content from './content.svelte'
 import Header from './header.svelte'
@@ -10,7 +8,9 @@ import { setResource } from './api.js'
 import { writable } from 'svelte/store'
 
 let friend_id = writable(1)
-run(() => {
+setResource($friend_id, friend_id)
+
+$effect.pre(() => {
   setResource($friend_id, friend_id)
 })
 </script>
