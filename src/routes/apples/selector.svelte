@@ -1,11 +1,12 @@
 <script>
-export let mode
+/** @type {{mode: any}} */
+let { mode = $bindable() } = $props()
 </script>
 
 <ul>
   {#each [['without', 'Without SuspenseList'], ['with', 'SuspenseList'], ['collapse', 'w/ collapse']] as [mode_, label]}
     <li>
-      <button class:active={mode === mode_} on:click={() => (mode = mode_)}>
+      <button class:active={mode === mode_} onclick={() => (mode = mode_)}>
         {label}
       </button>
     </li>

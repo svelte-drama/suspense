@@ -1,14 +1,16 @@
 <script>
-let refresh = 0
+/** @type {{children?: import('svelte').Snippet}} */
+let { children } = $props()
+let refresh = $state(0)
 </script>
 
 <header>
   <h1>Top 50 Albums from iTunes</h1>
-  <button type="button" on:click={() => refresh++}> Reload </button>
+  <button type="button" onclick={() => refresh++}> Reload </button>
 </header>
 
 {#key refresh}
-  <slot />
+  {@render children?.()}
 {/key}
 
 <style>

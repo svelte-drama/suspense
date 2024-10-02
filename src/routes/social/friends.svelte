@@ -14,7 +14,7 @@ const friend_id = getResource().friend_id
       <li>
         <button
           class:active={friend.id === $friend_id}
-          on:click={() => ($friend_id = friend.id)}
+          onclick={() => ($friend_id = friend.id)}
         >
           <Img src={friend.avatar} />
           <span>{friend.name}</span>

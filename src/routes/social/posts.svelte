@@ -17,15 +17,17 @@ let posts = getResource().posts()
     <SuspenseList collapse>
       {#each posts as post}
         <Suspense>
-          <article slot="loading">
-            <Post {post} />
-            <CommentsSkeleton />
-          </article>
-
           <article>
             <Post {post} />
             <Comments {post} />
           </article>
+
+          {#snippet loading()}
+            <article>
+              <Post {post} />
+              <CommentsSkeleton />
+            </article>
+          {/snippet}
         </Suspense>
       {/each}
     </SuspenseList>

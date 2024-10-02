@@ -16,7 +16,9 @@ const request = fetch(`https://itunes.apple.com/us/rss/topalbums/limit=50/json`)
         <li>
           <Suspense>
             <Album {album} />
-            <AlbumSkeleton slot="loading" />
+            {#snippet loading()}
+              <AlbumSkeleton />
+            {/snippet}
           </Suspense>
         </li>
       {/each}

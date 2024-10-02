@@ -18,7 +18,7 @@ export type InternalSuspend = {
     result: Readable<T>
   }
 }
-type Suspend = {
+export type Suspend = {
   <T>(data: Promise<T>): Promise<T>
   <T>(data: Readable<T>, error?: Readable<Error | undefined>): Readable<T>
 }

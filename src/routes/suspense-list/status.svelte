@@ -1,7 +1,11 @@
 <script lang="ts">
 import type { Readable } from 'svelte/store'
 
-export let store: Readable<boolean | undefined>
+interface Props {
+  store: Readable<boolean | undefined>
+}
+
+let { store }: Props = $props()
 </script>
 
 <li>

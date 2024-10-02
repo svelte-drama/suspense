@@ -3,21 +3,25 @@ import { createSuspense } from '$lib'
 
 const suspend = createSuspense()
 
-export let album
+interface Props {
+  album: any
+}
 
-let onLoad: (value: unknown) => void
+let { album }: Props = $props()
+
+let onLoad: (value: unknown) => void = $state(() => {})
 const loaded = new Promise((resolve) => (onLoad = resolve))
 suspend(loaded)
 
-$: src = album['im:image'][2].label
-$: title = album['im:name'].label
-$: artist = album['im:artist'].label
-$: href = album.id.label
+let src = $derived(album['im:image'][2].label)
+let title = $derived(album['im:name'].label)
+let artist = $derived(album['im:artist'].label)
+let href = $derived(album.id.label)
 </script>
 
 <a {href} target="blank">
   <figure>
-    <img on:load={onLoad} {src} alt="" />
+    <img onload={onLoad} {src} alt="" />
     <figcaption>
       <span class="title">{title}</span>
       <span class="artist">{artist}</span>

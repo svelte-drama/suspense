@@ -1,7 +1,5 @@
-<svelte:options immutable={true} />
-
 <script lang="ts">
-import { createEventDispatcher, onDestroy } from 'svelte'
+import { onDestroy } from 'svelte'
 import { derived, writable } from 'svelte/store'
 import type { Readable } from 'svelte/store'
 import debounce from '$lib/_debounce'
@@ -9,17 +7,19 @@ import { setContext } from './context'
 import { STATUS } from './status'
 import { sortOnDocumentOrder } from './util'
 
-export let collapse = false
-export let final = false
+interface Props {
+  collapse?: boolean
+  final?: boolean
+  children?: import('svelte').Snippet<[boolean]>
+  onload?: (element: HTMLElement) => void
+}
 
-const dispatch = createEventDispatcher<{
-  load: { element: HTMLElement }
-}>()
+let { collapse = false, final = false, children, onload }: Props = $props()
 
-let element: HTMLElement
+let element: HTMLElement | undefined = $state()
 let elements: HTMLElement[] | undefined
 let destroyed = false
-let loading = false
+let loading = $state(false)
 const watching = new Map<HTMLElement, boolean>()
 
 onDestroy(() => {
@@ -60,11 +60,13 @@ const updateNext = debounce(() => {
 const isLoading = writable(false)
 const updateIsLoading = debounce((loading: boolean) => {
   isLoading.set(loading)
-  if (!loading) {
-    dispatch('load', { element })
+  if (!loading && element) {
+    onload?.(element)
   }
 })
-$: updateIsLoading(loading)
+$effect(() => {
+  updateIsLoading(loading)
+})
 
 setContext(register)
 function register(
@@ -110,7 +112,7 @@ function register(
 </script>
 
 <div bind:this={element}>
-  <slot loading={$isLoading} />
+  {@render children?.($isLoading)}
 </div>
 
 <style>

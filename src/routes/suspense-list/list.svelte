@@ -4,18 +4,26 @@ import { Suspense } from '$lib'
 import SuspenseList from '$lib/_suspense-list/suspense-list.svelte'
 import Status from './status.svelte'
 
-export let collapse: boolean
-export let final: boolean
-export let stores: Readable<boolean | undefined>[]
+interface Props {
+  collapse: boolean
+  final: boolean
+  stores: Readable<boolean | undefined>[]
+}
+
+let { collapse, final, stores }: Props = $props()
 </script>
 
 <SuspenseList {collapse} {final}>
   <ul>
     {#each stores as store}
       <li>
-        <Suspense let:suspend>
-          <svelte:fragment slot="loading">📦</svelte:fragment>
-          <Status store={suspend(store)} />
+        <Suspense>
+          {#snippet children(suspend)}
+            <Status store={suspend(store)} />
+          {/snippet}
+          {#snippet loading()}
+            📦
+          {/snippet}
         </Suspense>
       </li>
     {/each}

@@ -1,5 +1,6 @@
 <script>
-export let stroke = '#74a8d0'
+/** @type {{stroke?: string}} */
+let { stroke = '#74a8d0' } = $props()
 </script>
 
 <svg class="spinner" viewBox="0 0 50 50">

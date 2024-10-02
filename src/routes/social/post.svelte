@@ -1,5 +1,6 @@
 <script>
-export let post
+/** @type {{post: any}} */
+let { post } = $props()
 </script>
 
 <div class="post">

@@ -3,13 +3,15 @@ import { Suspense } from '$lib'
 import Delayed from './delayed.svelte'
 </script>
 
-<Suspense on:load={(e) => console.log('Loaded Empty', e.detail.element)}>
+<Suspense onload={(element) => console.log('Loaded Empty', element)}>
   <h1>Empty</h1>
   <p>Nothing here.</p>
 </Suspense>
 
-<Suspense on:load={(e) => console.log('Loaded Delayed', e.detail.element)}>
+<Suspense onload={(element) => console.log('Loaded Delayed', element)}>
   <Delayed />
 
-  <p slot="loading">Loading...</p>
+  {#snippet loading()}
+    <p>Loading...</p>
+  {/snippet}
 </Suspense>

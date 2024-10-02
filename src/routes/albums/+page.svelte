@@ -8,8 +8,12 @@ import { Suspense } from '$lib'
 <PageLayout>
   <Suspense>
     <AlbumList />
-    <Loading slot="loading" />
-    <p slot="error">Error!</p>
+    {#snippet loading()}
+      <Loading />
+    {/snippet}
+    {#snippet error()}
+      <p>Error!</p>
+    {/snippet}
   </Suspense>
 </PageLayout>
 

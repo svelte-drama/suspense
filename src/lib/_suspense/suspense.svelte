@@ -1,20 +1,36 @@
-<svelte:options immutable={true} />
-
 <script lang="ts">
-import { createEventDispatcher, onDestroy } from 'svelte'
-import { derived, writable, readable, type Readable } from 'svelte/store'
+import { onDestroy } from 'svelte'
+import {
+  derived as derivedStore,
+  writable,
+  readable,
+  type Readable,
+} from 'svelte/store'
 import debounce from '$lib/_debounce'
 import {
   getContext as getListContext,
   setContext as setListContext,
+  type SuspenseListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
-import { setContext } from './context'
+import { setContext, type Suspend } from './context'
 
-const dispatch = createEventDispatcher<{
-  error: Error
-  load: { element: HTMLElement | undefined }
-}>()
+interface Props {
+  children?: import('svelte').Snippet<[Suspend]>
+  error?: import('svelte').Snippet<[Error]>
+  loading?: import('svelte').Snippet
+  onerror?: (e: Error) => void
+  onload?: (element: HTMLElement) => void
+}
+
+let {
+  children,
+  error: renderError,
+  loading: renderLoading,
+  onload,
+  onerror,
+}: Props = $props()
+
 const isBrowser = typeof window !== 'undefined'
 
 type SuspsendedRequest = {
@@ -38,8 +54,8 @@ function updatePending(index: symbol, data: SuspsendedRequest) {
   update()
 }
 
-let loading = false
-let error: Error | undefined = undefined
+let loading = $state(false)
+let error: Error | undefined = $state(undefined)
 
 const update = debounce(() => {
   const values = Array.from(pending.values())
@@ -54,20 +70,32 @@ onDestroy(() => {
 
 // Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
-  if (!loading) {
-    dispatch('load', { element })
+  if (!loading && element) {
+    onload?.(element)
   }
 })
-$: !loading && dispatchLoaded()
+$effect(() => {
+  if (!loading) dispatchLoaded()
+})
 
-$: error && dispatch('error', error)
+$effect(() => {
+  if (error) onerror?.(error)
+})
 
-let element: HTMLDivElement
+let element: HTMLDivElement | undefined = $state()
 const registerWithList = getListContext()
 setListContext()
 const isLoaded = writable(true)
-$: $isLoaded = !loading
-$: listStatus = element && registerWithList(element, isLoaded)
+$effect(() => {
+  $isLoaded = !loading
+})
+
+let listStatus = $state<SuspenseListContext | undefined>()
+$effect(() => {
+  if (element) {
+    listStatus = registerWithList(element, isLoaded)
+  }
+})
 
 function internalSuspend<T>(data: Promise<T>): {
   abort: () => void
@@ -122,7 +150,7 @@ function suspendStore<T>(
   const observer = readable(undefined, () => {
     return () => removePending(index)
   })
-  const result = derived(
+  const result = derivedStore(
     [data_store, error_store, observer],
     ([data, error]) => {
       if (!aborted) {
@@ -188,16 +216,16 @@ function suspendPromise<T>(promise: Promise<T>) {
     bind:this={element}
     hidden={!!error || loading || $listStatus !== STATUS.READY}
   >
-    <slot {suspend} />
+    {@render children?.(suspend)}
   </div>
 {/if}
 
 {#if $listStatus === STATUS.HIDDEN}
   <!-- Hidden -->
 {:else if error}
-  <slot name="error" {error} />
+  {@render renderError?.(error)}
 {:else if loading || $listStatus === STATUS.LOADING}
-  <slot name="loading" />
+  {@render renderLoading?.()}
 {/if}
 
 <style>

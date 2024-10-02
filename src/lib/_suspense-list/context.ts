@@ -4,7 +4,7 @@ import { STATUS } from './status.js'
 
 const key = {}
 
-type SuspenseListContext = Readable<STATUS>
+export type SuspenseListContext = Readable<STATUS>
 type RegisterFunction = (
   element: HTMLElement,
   loaded: Readable<boolean>

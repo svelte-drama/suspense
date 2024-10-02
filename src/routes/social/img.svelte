@@ -3,13 +3,17 @@ import { createSuspense } from '$lib'
 
 const suspend = createSuspense()
 
-export let src
+interface Props {
+  src: any
+}
 
-let onLoad: (value: unknown) => void
+let { src }: Props = $props()
+
+let onload: (value: unknown) => void = $state(() => {})
 const loaded = new Promise((resolve) => {
-  onLoad = resolve
+  onload = resolve
 })
 suspend(loaded)
 </script>
 
-<img alt="" {src} on:load={onLoad} on:error={onLoad} />
+<img alt="" {src} {onload} onerror={onload} />

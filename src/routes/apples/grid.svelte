@@ -8,7 +8,9 @@ import Apple from './apple.svelte'
     <div>
       <Suspense>
         <Apple />
-        <svelte:fragment slot="loading">⌛</svelte:fragment>
+        {#snippet loading()}
+          ⌛
+        {/snippet}
       </Suspense>
     </div>
   {/each}

@@ -4,7 +4,8 @@ import { getResource } from './api.js'
 import Img from './img.svelte'
 const suspend = createSuspense()
 
-export let post
+/** @type {{post: any}} */
+let { post } = $props()
 // @ts-ignore
 const comments = getResource().comments(post.id)
 </script>

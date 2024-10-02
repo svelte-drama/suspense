@@ -49,8 +49,8 @@ Wrap a store. `<Suspense>` will consider this resolved as long as `data` resolve
 
 Two events are availabe:
 
-- _on:error_: Triggers after a promise given to `suspend` is rejected. The original error is passed as part of `event.detail`.
-- _on:load_: Triggers when all components inside the `<Suspense>` block have finished loading.
+- _onerror_: Triggers after a promise given to `suspend` is rejected. The original error is passed as part of `event.detail`.
+- _onload_: Triggers when all components inside the `<Suspense>` block have finished loading.
 
 ```svelte
 <script>
@@ -61,17 +61,22 @@ const MyComponent = import('./my-component.svelte').then((m) => m.default)
 </script>
 
 <Suspense
-  let:suspend
-  on:error={(e) => console.error(e.detail)}
-  on:load={() => console.log('loaded')}
+  onerror={(e) => console.error(e.detail)}
+  onload={() => console.log('loaded')}
 >
-  <p slot="loading">Loading...</p>
-  <p slot="error" let:error>Error: {error?.message || error}</p>
+  {#snippet loading()}
+    <p>Loading...</p>
+  {/snippet}
+  {#snippet error(error)}
+    <p>Error: {error?.message || error}</p>
+  {/snippet}
 
-  <h1>My Component</h1>
-  {#await suspend(MyComponent) then MyComponent}
-    <MyComponent />
-  {/await}
+  {#snippet children(suspend)}
+    <h1>My Component</h1>
+    {#await suspend(MyComponent) then MyComponent}
+      <MyComponent />
+    {/await}
+  {/snippet}
 </Suspense>
 ```
 
@@ -102,7 +107,9 @@ export let posts
     <Suspense>
       <Post {post} />
 
-      <Loading slot="loading" />
+      {#snippet loading()}
+        <Loading />
+      {/snippet}
     </Suspense>
   {/each}
 </SuspenseList>
@@ -138,9 +145,11 @@ import Suspense from '@svelte-drama/suspense'
 const request = getData()
 </script>
 
-<Suspense let:suspend>
-  {#await suspend(request) then data}
-    {JSON.stringify(data)}
-  {/await}
+<Suspense>
+  {#snippet children(suspend)}
+    {#await suspend(request) then data}
+      {JSON.stringify(data)}
+    {/await}
+  {/snippet}
 </Suspense>
 ```
