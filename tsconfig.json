@@ -5,6 +5,7 @@
     "moduleResolution": "node",
     "strictNullChecks": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "target": "es2022"
   }
 }

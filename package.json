@@ -4,7 +4,7 @@
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
   "packageManager": "pnpm@8.11.0",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "sideEffects": false,
   "scripts": {
     "dev": "vite dev",
@@ -30,21 +30,21 @@
     "svelte": "^3.54.0 || ^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^3.2.2",
-    "@sveltejs/kit": "^2.5.17",
-    "@sveltejs/package": "^2.3.2",
-    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "@sveltejs/adapter-auto": "^3.2.5",
+    "@sveltejs/kit": "^2.6.1",
+    "@sveltejs/package": "^2.3.5",
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "cross-spawn": "^7.0.3",
-    "husky": "^9.0.11",
-    "prettier": "^3.3.2",
-    "prettier-plugin-svelte": "^3.2.5",
-    "publint": "^0.2.8",
-    "svelte": "^4.2.18",
-    "svelte-check": "^3.8.2",
-    "tslib": "^2.6.3",
-    "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "husky": "^9.1.6",
+    "prettier": "^3.3.3",
+    "prettier-plugin-svelte": "^3.2.7",
+    "publint": "^0.2.11",
+    "svelte": "^4.2.19",
+    "svelte-check": "^4.0.4",
+    "tslib": "^2.7.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
   },
   "repository": {
     "type": "git",
