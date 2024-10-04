@@ -154,10 +154,13 @@ function suspendStore<T>(
     [data_store, error_store, observer],
     ([data, error]) => {
       if (!aborted) {
-        updatePending(index, {
-          loaded: data !== undefined,
-          error: data !== undefined ? undefined : error,
-          unsub,
+        setTimeout(() => {
+          // Avoid calling from inside $derived
+          updatePending(index, {
+            loaded: data !== undefined,
+            error: data !== undefined ? undefined : error,
+            unsub,
+          })
         })
       }
       return data
