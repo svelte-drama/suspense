@@ -1,5 +1,4 @@
 import { getContext, onDestroy, setContext as set } from 'svelte'
-import type { Readable } from 'svelte/store'
 
 // FIXME: Vite is incorrectly running this multiple times in development,
 // once for each package that depends on it.
@@ -10,18 +9,12 @@ export type InternalSuspend = {
     abort: () => void
     result: Promise<T>
   }
-  <T>(
-    data: Readable<T>,
-    error?: Readable<Error | undefined>
-  ): {
-    abort: () => void
-    result: Readable<T>
-  }
 }
+
 export type Suspend = {
   <T>(data: Promise<T>): Promise<T>
-  <T>(data: Readable<T>, error?: Readable<Error | undefined>): Readable<T>
 }
+
 function mock<T>(data: T) {
   return data
 }
@@ -34,22 +27,14 @@ export function createSuspense(): Suspend {
   }
 
   const subscriptions: (() => void)[] = []
-  onDestroy(() => subscriptions.forEach((unsub) => unsub()))
+  onDestroy(() => subscriptions.forEach((abort) => abort()))
 
-  function result<T>(data: Promise<T>): Promise<T>
-  function result<T>(
-    data: Readable<T>,
-    error?: Readable<Error | undefined>
-  ): Readable<T>
-  function result<T>(
-    data: Promise<T> | Readable<T>,
-    error?: Readable<Error | undefined>
-  ): Promise<T> | Readable<T> {
-    const { abort, result } =
-      'subscribe' in data ? suspend(data, error) : suspend(data)
+  function result<T>(data: Promise<T>): Promise<T> {
+    const { abort, result } = suspend(data)
     subscriptions.push(abort)
     return result
   }
+
   return result
 }
 

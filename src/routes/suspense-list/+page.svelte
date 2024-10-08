@@ -1,63 +1,30 @@
 <script lang="ts">
-import { readable } from 'svelte/store'
 import List from './list.svelte'
-import Status from './status.svelte'
 
-const OPTIONS = [undefined, true, true]
-function createStore() {
-  return readable<undefined | boolean>(undefined, (set) => {
-    let timer: ReturnType<typeof setTimeout>
-
-    function update() {
-      const timeout = 1500
-      const value = OPTIONS[Math.floor(Math.random() * 3)]
-      timer = setTimeout(() => {
-        set(value)
-        update()
-      }, timeout)
-    }
-
-    update()
-    return () => clearInterval(timer)
+function createPromise() {
+  return new Promise((resolve) => {
+    setTimeout(resolve, Math.random() * 2000)
   })
 }
 
-const stores = [
-  createStore(),
-  createStore(),
-  createStore(),
-  createStore(),
-  createStore(),
-]
+const promises = $state([
+  createPromise(),
+  createPromise(),
+  createPromise(),
+  createPromise(),
+  createPromise(),
+  createPromise(),
+])
 </script>
 
-<h1>Stores</h1>
-<ul>
-  {#each stores as store}
-    <li>
-      <Status {store} />
-    </li>
-  {/each}
-</ul>
-
 <h2>Suspense List</h2>
-<List collapse={false} final={false} {stores} />
+<List {promises} />
 
 <h2>Suspense List w/ Collapse</h2>
-<List collapse={true} final={false} {stores} />
+<List {promises} collapse />
 
 <h2>Suspense List w/ Final</h2>
-<List collapse={false} final={true} {stores} />
+<List {promises} final />
 
 <h2>Suspense List w/ Collapse & Final</h2>
-<List collapse={true} final={true} {stores} />
-
-<style>
-ul {
-  display: flex;
-  gap: 1em;
-  list-style: none;
-  padding: 1em 0;
-  margin: 0;
-}
-</style>
+<List {promises} collapse final />
