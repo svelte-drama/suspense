@@ -1,5 +1,4 @@
 <script lang="ts">
-import { onDestroy } from 'svelte'
 import { writable } from 'svelte/store'
 import debounce from '$lib/_debounce'
 import {
@@ -8,7 +7,7 @@ import {
   type SuspenseListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
-import { setContext, type Suspend } from './context'
+import { setContext, type Suspend } from './context.ts'
 
 interface Props {
   children?: import('svelte').Snippet<[Suspend]>
@@ -29,17 +28,14 @@ let {
 const isBrowser = typeof window !== 'undefined'
 
 type SuspsendedRequest = {
-  loaded: boolean
   error: Error | undefined
-  unsub: () => void
+  loaded: boolean
 }
 
 const pending = new Map<symbol, SuspsendedRequest>()
 function removePending(index: symbol) {
-  const data = pending.get(index)
-  if (data) {
+  if (pending.has(index)) {
     pending.delete(index)
-    data.unsub()
     update()
   }
 }
@@ -58,11 +54,6 @@ const update = debounce(() => {
   error = values.find(({ error }) => error)?.error
 })
 
-onDestroy(() => {
-  pending.forEach(({ unsub }) => unsub())
-  pending.clear()
-})
-
 // Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
   if (!loading && element) {
@@ -74,7 +65,7 @@ $effect(() => {
 })
 
 $effect(() => {
-  if (error) onerror?.(error)
+  if (onerror && error) onerror(error)
 })
 
 let element: HTMLDivElement | undefined = $state()
@@ -92,58 +83,39 @@ $effect(() => {
   }
 })
 
-function internalSuspend<T>(data: Promise<T>): {
-  abort: () => void
-  result: Promise<T>
-} {
-  return suspendPromise(data)
-}
-setContext(internalSuspend)
-
-function suspend<T>(data: Promise<T>): Promise<T> {
-  const { result } = internalSuspend<T>(data)
-  return result
-}
-
-function suspendPromise<T>(promise: Promise<T>) {
+function suspend<T>(promise: Promise<T>): Promise<T> {
   const index = Symbol()
-  let aborted = false
 
-  const abort = () => {
-    removePending(index)
-    aborted = true
-  }
-  const unsub = () => {
-    aborted = true
-  }
+  $effect(() => {
+    let aborted = false
 
-  updatePending(index, {
-    loaded: false,
-    error: undefined,
-    unsub,
+    updatePending(index, {
+      loaded: false,
+      error: undefined,
+    })
+
+    promise
+      .then(() => {
+        removePending(index)
+      })
+      .catch((error: Error) => {
+        if (!aborted) {
+          updatePending(index, {
+            loaded: true,
+            error,
+          })
+        }
+      })
+
+    return () => {
+      removePending(index)
+      aborted = true
+    }
   })
 
-  const result = promise
-    .then((data) => {
-      removePending(index)
-      return data
-    })
-    .catch((error: Error) => {
-      if (!aborted) {
-        updatePending(index, {
-          loaded: true,
-          error,
-          unsub,
-        })
-      }
-      throw error
-    })
-
-  return {
-    abort,
-    result,
-  }
+  return promise
 }
+setContext(suspend)
 </script>
 
 {#if isBrowser}

@@ -1,15 +1,8 @@
-import { getContext, onDestroy, setContext as set } from 'svelte'
+import { getContext, setContext as set } from 'svelte'
 
 // FIXME: Vite is incorrectly running this multiple times in development,
 // once for each package that depends on it.
 const key = Symbol.for('SUSPENSE_CONTEXT')
-
-export type InternalSuspend = {
-  <T>(data: Promise<T>): {
-    abort: () => void
-    result: Promise<T>
-  }
-}
 
 export type Suspend = {
   <T>(data: Promise<T>): Promise<T>
@@ -20,24 +13,15 @@ function mock<T>(data: T) {
 }
 
 export function createSuspense(): Suspend {
-  const suspend = getContext<InternalSuspend>(key)
+  const suspend = getContext<Suspend>(key)
   if (!suspend) {
     console.warn('createSuspense called outside of a Suspense boundary')
     return mock
   }
 
-  const subscriptions: (() => void)[] = []
-  onDestroy(() => subscriptions.forEach((abort) => abort()))
-
-  function result<T>(data: Promise<T>): Promise<T> {
-    const { abort, result } = suspend(data)
-    subscriptions.push(abort)
-    return result
-  }
-
-  return result
+  return suspend
 }
 
-export function setContext(value: InternalSuspend) {
+export function setContext(value: Suspend) {
   set(key, value)
 }

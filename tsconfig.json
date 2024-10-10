@@ -1,8 +1,9 @@
 {
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
