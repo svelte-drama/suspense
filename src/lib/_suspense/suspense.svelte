@@ -76,10 +76,10 @@ $effect(() => {
   $isLoaded = !loading
 })
 
-let listStatus = $state<SuspenseListContext | undefined>()
+let list = $state<SuspenseListContext | undefined>()
 $effect(() => {
   if (element) {
-    listStatus = registerWithList(element, isLoaded)
+    list = registerWithList(element, isLoaded)
   }
 })
 
@@ -121,17 +121,17 @@ setContext(suspend)
 {#if isBrowser}
   <div
     bind:this={element}
-    hidden={!!error || loading || $listStatus !== STATUS.READY}
+    hidden={!!error || loading || list?.status !== STATUS.READY}
   >
     {@render children?.(suspend)}
   </div>
 {/if}
 
-{#if $listStatus === STATUS.HIDDEN}
+{#if list?.status === STATUS.HIDDEN}
   <!-- Hidden -->
 {:else if error}
   {@render renderError?.(error)}
-{:else if loading || $listStatus === STATUS.LOADING}
+{:else if loading || list?.status === STATUS.LOADING}
   {@render renderLoading?.()}
 {/if}
 

@@ -4,13 +4,15 @@ import { STATUS } from './status.js'
 
 const key = {}
 
-export type SuspenseListContext = Readable<STATUS>
-type RegisterFunction = (
+export type SuspenseListContext = {
+  status: STATUS
+}
+export type RegisterFunction = (
   element: HTMLElement,
   loaded: Readable<boolean>
 ) => SuspenseListContext
 
-const mock: RegisterFunction = () => readable(STATUS.READY)
+const mock: RegisterFunction = () => ({ status: STATUS.READY })
 export function getContext() {
   const register = get<RegisterFunction | undefined>(key)
   return register || mock

@@ -1,9 +1,8 @@
 <script lang="ts">
 import { onDestroy } from 'svelte'
-import { derived, writable } from 'svelte/store'
-import type { Readable } from 'svelte/store'
+import { writable } from 'svelte/store'
 import debounce from '$lib/_debounce'
-import { setContext } from './context'
+import { setContext, type RegisterFunction } from './context'
 import { STATUS } from './status'
 import { sortOnDocumentOrder } from './util'
 
@@ -27,7 +26,7 @@ onDestroy(() => {
   watching.clear()
 })
 
-const status = writable<{
+let status = $state<{
   loaded: Set<HTMLElement>
   next: HTMLElement | null
 }>({
@@ -44,16 +43,16 @@ const updateNext = debounce(() => {
 
   if (index === -1) {
     loading = false
-    status.set({
+    status = {
       loaded: new Set(elements),
       next: null,
-    })
+    }
   } else {
     loading = true
-    status.set({
+    status = {
       loaded: new Set(elements.slice(0, index)),
       next: elements[index],
-    })
+    }
   }
 })
 
@@ -68,11 +67,7 @@ $effect(() => {
   updateIsLoading(loading)
 })
 
-setContext(register)
-function register(
-  element: HTMLElement,
-  loaded: Readable<boolean>
-): Readable<STATUS> {
+const register = ((element, loaded) => {
   let child_has_been_shown = false
   let registered = false
   loading = true
@@ -96,19 +91,26 @@ function register(
     }
   })
 
-  return derived(status, ($status) => {
+  const child_status = $derived.by(() => {
     if (final && child_has_been_shown) {
       return STATUS.READY
-    } else if ($status.next === element) {
+    } else if (status.next === element) {
       return STATUS.LOADING
-    } else if ($status.loaded.has(element)) {
+    } else if (status.loaded.has(element)) {
       child_has_been_shown = true
       return STATUS.READY
     } else {
       return collapse ? STATUS.HIDDEN : STATUS.LOADING
     }
   })
-}
+
+  return {
+    get status() {
+      return child_status
+    },
+  }
+}) satisfies RegisterFunction
+setContext(register)
 </script>
 
 <div bind:this={element}>
