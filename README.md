@@ -98,20 +98,22 @@ import Post from './my-component.svelte'
 export let posts
 </script>
 
-<SuspenseList collapse final let:loading>
-  {#if loading}
-    <p>Fetching posts...</p>
-  {/if}
+<SuspenseList collapse final>
+  {#snippet children(loading)}
+    {#if loading}
+      <p>Fetching posts...</p>
+    {/if}
 
-  {#each posts as post}
-    <Suspense>
-      <Post {post} />
+    {#each posts as post}
+      <Suspense>
+        <Post {post} />
 
-      {#snippet loading()}
-        <Loading />
-      {/snippet}
-    </Suspense>
-  {/each}
+        {#snippet loading()}
+          <Loading />
+        {/snippet}
+      </Suspense>
+    {/each}
+  {/snippet}
 </SuspenseList>
 ```
 
