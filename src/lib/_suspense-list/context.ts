@@ -7,17 +7,17 @@ const key = {}
 export type SuspenseListContext = {
   status: STATUS
 }
-export type RegisterFunction = (
-  element: HTMLElement,
-  loaded: Readable<boolean>
-) => SuspenseListContext
+export type RegisterFunction = (data: {
+  element: HTMLElement | undefined
+  loaded: boolean
+}) => SuspenseListContext
 
 const mock: RegisterFunction = () => ({ status: STATUS.READY })
-export function getContext() {
+export function getSuspenseListContext() {
   const register = get<RegisterFunction | undefined>(key)
   return register || mock
 }
 
-export function setContext(value?: RegisterFunction) {
+export function setSuspenseListContext(value?: RegisterFunction) {
   set(key, value)
 }

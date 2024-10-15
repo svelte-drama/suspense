@@ -1,15 +1,9 @@
 <script lang="ts">
-import {
-  derived as derivedStore,
-  readable,
-  writable,
-  type Readable,
-} from 'svelte/store'
+import { derived as derivedStore, readable, type Readable } from 'svelte/store'
 import debounce from '$lib/_debounce'
 import {
-  getContext as getListContext,
-  setContext as setListContext,
-  type SuspenseListContext,
+  getSuspenseListContext,
+  setSuspenseListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
 import { setContext, type Suspend } from './context.js'
@@ -74,18 +68,16 @@ $effect(() => {
 })
 
 let element: HTMLDivElement | undefined = $state()
-const registerWithList = getListContext()
-setListContext()
-const isLoaded = writable(true)
-$effect(() => {
-  $isLoaded = !loading
-})
+const registerWithList = getSuspenseListContext()
+setSuspenseListContext()
 
-let list = $state<SuspenseListContext | undefined>()
-$effect(() => {
-  if (element) {
-    list = registerWithList(element, isLoaded)
-  }
+let list = registerWithList({
+  get element() {
+    return element
+  },
+  get loaded() {
+    return !loading
+  },
 })
 
 function suspend<T>(promise: Promise<T>): Promise<T>
@@ -161,7 +153,12 @@ function suspendStore<T>(
         })
       }
     })
-    return combined.subscribe(() => {})
+    const unsub = combined.subscribe(() => {})
+
+    return () => {
+      unsub()
+      removePending(index)
+    }
   })
 
   return store

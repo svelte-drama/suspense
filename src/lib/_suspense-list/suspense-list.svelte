@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onDestroy } from 'svelte'
 import debounce from '$lib/_debounce'
-import { setContext, type RegisterFunction } from './context'
+import { setSuspenseListContext, type RegisterFunction } from './context'
 import { STATUS } from './status'
 import { sortOnDocumentOrder } from './util'
 
@@ -66,24 +66,25 @@ $effect(() => {
   updateIsLoading(loading)
 })
 
-const register = ((element, loaded) => {
+const register = ((data) => {
   let child_has_been_shown = false
   let registered = false
   loading = true
 
-  const unsubscribe = loaded.subscribe((loaded) => {
-    if (!registered) {
-      registered = true
-      elements = undefined
+  const { element, loaded } = $derived(data)
+  $effect(() => {
+    if (element) {
+      if (!registered) {
+        registered = true
+        elements = undefined
+      }
+      watching.set(element, loaded)
+      updateNext()
     }
-    watching.set(element, loaded)
-    updateNext()
   })
 
   onDestroy(() => {
-    unsubscribe()
-
-    if (!destroyed) {
+    if (element && !destroyed) {
       watching.delete(element)
       elements = undefined
       updateNext()
@@ -91,16 +92,20 @@ const register = ((element, loaded) => {
   })
 
   const child_status = $derived.by(() => {
+    if (!element) {
+      return STATUS.LOADING
+    }
     if (final && child_has_been_shown) {
       return STATUS.READY
-    } else if (status.next === element) {
+    }
+    if (status.next === element) {
       return STATUS.LOADING
-    } else if (status.loaded.has(element)) {
+    }
+    if (status.loaded.has(element)) {
       child_has_been_shown = true
       return STATUS.READY
-    } else {
-      return collapse ? STATUS.HIDDEN : STATUS.LOADING
     }
+    return collapse ? STATUS.HIDDEN : STATUS.LOADING
   })
 
   return {
@@ -109,7 +114,7 @@ const register = ((element, loaded) => {
     },
   }
 }) satisfies RegisterFunction
-setContext(register)
+setSuspenseListContext(register)
 </script>
 
 <div bind:this={element}>
