@@ -4,7 +4,7 @@ This is a Svelte component that implements the core idea of React's `<Suspense>`
 
 When requesting asynchronous data, a typical pattern is for a parent component to handle all fetching and then push data down to its children. This can become difficult as levels of nesting increase and add unnessecary amounts of complexity. `<Suspense>` instead lets its children, at an arbitrary nested depth, dictate when they are done loading.
 
-[See it in action](https://svelte.dev/repl/91183af6db654f2099806426ff3bbb4b?version=3.44.0)
+[See it in action](https://svelte.dev/repl/91183af6db654f2099806426ff3bbb4b)
 
 ## Installation
 
@@ -14,7 +14,7 @@ npm install --save @svelte-drama/suspense
 
 ## `createSuspense`
 
-Child components need to register what data they depend on. `createSuspense` returns a function to to handle orchestration between this component and its nearest descendant `<Suspense>` component.
+Child components need to register what data they depend on. `createSuspense` returns a function to to handle orchestration between this component and its nearest parent `<Suspense>` component.
 
 Because it relies on [getContext](https://svelte.dev/docs#getContext), this must be declared during component initialization.
 
@@ -33,8 +33,7 @@ suspend<T>(data: Promise<T>) => Promise<T>
 Wrap a promise. This returns a promise, allowing it to be used as part of a promise chain. The containing `<Suspense>` component will display its `loading` state until the promise is resolved. If the promise is rejected, it will instead show the `error` state.
 
 ```js
-suspend<T>(data: Readable<T>) => Readable<T>
-suspend<T>(data: Readable<T>, error: Readable<Error | undefined>) => Readable<T>
+suspend<T>(data: Readable<T>, error?: Readable<Error | undefined>) => Readable<T>
 ```
 
 Wrap a store. `<Suspense>` will consider this resolved as long as `data` resolves to not `undefined`. If `error` is passed in, `<Suspense>` will display the error state as long as `data` is undefined and `error` is not.
@@ -94,8 +93,7 @@ const MyComponent = import('./my-component.svelte').then((m) => m.default)
 
 - _collapse_: Boolean. Defaults to `false`. If `true`, only one loading state will be shown among the children.
 - _final_: Boolean. Defaults to `false`. If `true`, children will not resuspend if they have been displayed, regardless of the state of previous siblings.
-- _let:loading_: Boolean. Indicates if any child Suspense component is still awaiting data.
-- _on:load_: Triggers when all components inside the `<SuspenseList>` have finished loading.
+- _onload_: Triggers when all components inside the `<SuspenseList>` have finished loading.
 
 ```svelte
 <script>
@@ -127,7 +125,7 @@ export let posts
 
 ## Limitations
 
-- [Intro transitions](https://svelte.dev/docs#transition_fn) will not work as expected on elements inside the default slot. Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions prematurely.
+- [Intro transitions](https://svelte.dev/docs/svelte-transition) will not work as expected on elements inside the default slot. Elements are rendered in a hidden container as soon as possible, which triggers these intro transitions prematurely.
 - SSR will only display the loading component. Implementing `<Suspense>` during SSR would require Svelte to support `async/await` during SSR.
 - `createSuspense` operates at component boundaries. The following example causes the parent of "my-component.svelte" to suspend, not the `<Suspense>` block inside of it, despite initial appearances:
 
