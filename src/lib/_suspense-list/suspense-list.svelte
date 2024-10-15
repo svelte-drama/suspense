@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onDestroy } from 'svelte'
-import { writable } from 'svelte/store'
 import debounce from '$lib/_debounce'
 import { setContext, type RegisterFunction } from './context'
 import { STATUS } from './status'
@@ -56,9 +55,9 @@ const updateNext = debounce(() => {
   }
 })
 
-const isLoading = writable(false)
+let debounced_loading = $state(false)
 const updateIsLoading = debounce((loading: boolean) => {
-  isLoading.set(loading)
+  debounced_loading = loading
   if (!loading && element) {
     onload?.(element)
   }
@@ -114,7 +113,7 @@ setContext(register)
 </script>
 
 <div bind:this={element}>
-  {@render children?.($isLoading)}
+  {@render children?.(debounced_loading)}
 </div>
 
 <style>

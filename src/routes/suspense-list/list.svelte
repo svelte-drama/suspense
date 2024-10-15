@@ -1,27 +1,26 @@
 <script lang="ts">
+import type { Readable } from 'svelte/store'
 import { Suspense } from '$lib'
 import SuspenseList from '$lib/_suspense-list/suspense-list.svelte'
+import Status from './status.svelte'
 
 interface Props {
-  collapse?: boolean
-  final?: boolean
-  promises: Promise<unknown>[]
+  collapse: boolean
+  final: boolean
+  stores: Readable<boolean | undefined>[]
 }
 
-let { collapse, final, promises }: Props = $props()
+let { collapse, final, stores }: Props = $props()
 </script>
 
 <SuspenseList {collapse} {final}>
   <ul>
-    {#each promises as data}
+    {#each stores as store}
       <li>
         <Suspense>
           {#snippet children(suspend)}
-            {#await suspend(data) then _}
-              ✔️
-            {/await}
+            <Status store={suspend(store)} />
           {/snippet}
-
           {#snippet loading()}
             📦
           {/snippet}

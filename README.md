@@ -34,10 +34,18 @@ Wrap a promise. This returns a promise, allowing it to be used as part of a prom
 
 ```js
 suspend<T>(data: Readable<T>) => Readable<T>
-suspend<T>(data: Readable<T>, error: Readable) => Readable<T>
+suspend<T>(data: Readable<T>, error: Readable<Error | undefined>) => Readable<T>
 ```
 
 Wrap a store. `<Suspense>` will consider this resolved as long as `data` resolves to not `undefined`. If `error` is passed in, `<Suspense>` will display the error state as long as `data` is undefined and `error` is not.
+
+```js
+suspend.all<T extends unknown[]>(...data) => Promise<{
+  [P in keyof T]: Awaited<T[P]>
+}>
+```
+
+Convenience function equivalent to `suspend(Promise.all(data))`.
 
 ## `<Suspense>`
 

@@ -1,5 +1,10 @@
 <script lang="ts">
-import { writable } from 'svelte/store'
+import {
+  derived as derivedStore,
+  readable,
+  writable,
+  type Readable,
+} from 'svelte/store'
 import debounce from '$lib/_debounce'
 import {
   getContext as getListContext,
@@ -7,7 +12,7 @@ import {
   type SuspenseListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
-import { setContext, type Suspend } from './context.ts'
+import { setContext, type Suspend } from './context.js'
 
 interface Props {
   children?: import('svelte').Snippet<[Suspend]>
@@ -28,7 +33,7 @@ let {
 const isBrowser = typeof window !== 'undefined'
 
 type SuspsendedRequest = {
-  error: Error | undefined
+  error?: Error
   loaded: boolean
 }
 
@@ -83,15 +88,33 @@ $effect(() => {
   }
 })
 
-function suspend<T>(promise: Promise<T>): Promise<T> {
-  const index = Symbol()
+function suspend<T>(promise: Promise<T>): Promise<T>
+function suspend<T>(
+  store: Readable<T>,
+  error?: Readable<Error | undefined>
+): Readable<T>
+function suspend<T>(
+  data: Promise<T> | Readable<T>,
+  error?: Readable<Error | undefined>
+) {
+  if ('subscribe' in data) {
+    return suspendStore(data, error)
+  } else {
+    return suspendPromise(data)
+  }
+}
+suspend.all = ((...args) => {
+  return suspend(Promise.all(args))
+}) satisfies Suspend['all']
+setContext(suspend)
 
+function suspendPromise<T>(promise: Promise<T>): Promise<T> {
   $effect(() => {
+    const index = Symbol()
     let aborted = false
 
     updatePending(index, {
       loaded: false,
-      error: undefined,
     })
 
     promise
@@ -115,7 +138,34 @@ function suspend<T>(promise: Promise<T>): Promise<T> {
 
   return promise
 }
-setContext(suspend)
+
+function suspendStore<T>(
+  store: Readable<T>,
+  error?: Readable<Error | undefined>
+) {
+  error = error ?? readable(undefined)
+  $effect(() => {
+    const index = Symbol()
+
+    const combined = derivedStore([store, error], ([store, error]) => {
+      if (store !== undefined) {
+        removePending(index)
+      } else if (error) {
+        updatePending(index, {
+          loaded: true,
+          error,
+        })
+      } else {
+        updatePending(index, {
+          loaded: false,
+        })
+      }
+    })
+    return combined.subscribe(() => {})
+  })
+
+  return store
+}
 </script>
 
 {#if isBrowser}
