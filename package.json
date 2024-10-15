@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.2.5",
-    "@sveltejs/kit": "^2.6.1",
+    "@sveltejs/kit": "^2.7.1",
     "@sveltejs/package": "^2.3.5",
     "@sveltejs/vite-plugin-svelte": "4.0.0-next.7",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
@@ -41,10 +41,10 @@
     "prettier-plugin-svelte": "^3.2.7",
     "publint": "^0.2.11",
     "svelte": "5.0.0-next.265",
-    "svelte-check": "^4.0.4",
+    "svelte-check": "^4.0.5",
     "tslib": "^2.7.0",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.8"
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9"
   },
   "repository": {
     "type": "git",
