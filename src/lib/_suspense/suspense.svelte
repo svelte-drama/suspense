@@ -6,7 +6,7 @@ import {
   setSuspenseListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
-import { setContext, type Suspend } from './context.js'
+import { createSuspense, setContext, type Suspend } from './context.svelte.js'
 
 interface Props {
   children?: import('svelte').Snippet<[Suspend]>
@@ -80,66 +80,43 @@ let list = registerWithList({
   },
 })
 
-function suspend<T>(promise: Promise<T>): Promise<T>
-function suspend<T>(
-  store: Readable<T>,
-  error?: Readable<Error | undefined>
-): Readable<T>
-function suspend<T>(
-  data: Promise<T> | Readable<T>,
-  error?: Readable<Error | undefined>
-) {
-  if ('subscribe' in data) {
-    return suspendStore(data, error)
-  } else {
-    return suspendPromise(data)
-  }
-}
-suspend.all = ((...args) => {
-  return suspend(Promise.all(args))
-}) satisfies Suspend['all']
-setContext(suspend)
+setContext({ promise: suspendPromise, store: suspendStore })
+const suspend = createSuspense()
 
-function suspendPromise<T>(promise: Promise<T>): Promise<T> {
-  $effect(() => {
-    const index = Symbol()
-    let aborted = false
+function suspendPromise<T>(promise: Promise<T>) {
+  const index = Symbol()
+  let aborted = false
 
-    updatePending(index, {
-      loaded: false,
-    })
-
-    promise
-      .then(() => {
-        removePending(index)
-      })
-      .catch((error: Error) => {
-        if (!aborted) {
-          updatePending(index, {
-            loaded: true,
-            error,
-          })
-        }
-      })
-
-    return () => {
-      removePending(index)
-      aborted = true
-    }
+  updatePending(index, {
+    loaded: false,
   })
 
-  return promise
+  promise
+    .then(() => removePending(index))
+    .catch((error: Error) => {
+      if (!aborted) {
+        updatePending(index, {
+          loaded: true,
+          error,
+        })
+      }
+    })
+
+  return () => {
+    removePending(index)
+    aborted = true
+  }
 }
 
 function suspendStore<T>(
   store: Readable<T>,
   error?: Readable<Error | undefined>
 ) {
-  error = error ?? readable(undefined)
-  $effect(() => {
-    const index = Symbol()
+  const index = Symbol()
 
-    const combined = derivedStore([store, error], ([store, error]) => {
+  const combined = derivedStore(
+    [store, error ?? readable(undefined)],
+    ([store, error]) => {
       if (store !== undefined) {
         removePending(index)
       } else if (error) {
@@ -152,16 +129,14 @@ function suspendStore<T>(
           loaded: false,
         })
       }
-    })
-    const unsub = combined.subscribe(() => {})
-
-    return () => {
-      unsub()
-      removePending(index)
     }
-  })
+  )
+  const unsub = combined.subscribe(() => {})
 
-  return store
+  return () => {
+    unsub()
+    removePending(index)
+  }
 }
 </script>
 
