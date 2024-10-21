@@ -7,6 +7,7 @@ import {
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
 import { createSuspense, setContext, type Suspend } from './context.svelte.js'
+import { SvelteMap, SvelteSet } from 'svelte/reactivity'
 
 interface Props {
   children?: import('svelte').Snippet<[Suspend]>
@@ -26,41 +27,24 @@ let {
 
 const isBrowser = typeof window !== 'undefined'
 
-type SuspsendedRequest = {
-  error?: Error
-  loaded: boolean
-}
+const errors = new SvelteMap<symbol, Error>()
+const loading = new SvelteSet<symbol>()
 
-const pending = new Map<symbol, SuspsendedRequest>()
-function removePending(index: symbol) {
-  if (pending.has(index)) {
-    pending.delete(index)
-    update()
+const error = $derived.by<Error | undefined>(() => {
+  if (errors.size) {
+    return errors.entries().next().value
   }
-}
-function updatePending(index: symbol, data: SuspsendedRequest) {
-  pending.set(index, data)
-  if (!data.loaded) loading = true
-  update()
-}
-
-let loading = $state(false)
-let error: Error | undefined = $state(undefined)
-
-const update = debounce(() => {
-  const values = Array.from(pending.values())
-  loading = values.some(({ loaded }) => !loaded)
-  error = values.find(({ error }) => error)?.error
 })
+const loaded = $derived(!loading.size)
 
 // Debounce to prevent dispatching multiple events when requests are chained.
 const dispatchLoaded = debounce(() => {
-  if (!loading && element) {
+  if (loaded && element) {
     onload?.(element)
   }
 })
 $effect(() => {
-  if (!loading) dispatchLoaded()
+  if (onload && loaded) dispatchLoaded()
 })
 
 $effect(() => {
@@ -71,12 +55,12 @@ let element: HTMLDivElement | undefined = $state()
 const registerWithList = getSuspenseListContext()
 setSuspenseListContext()
 
-let list = registerWithList({
+const list = registerWithList({
   get element() {
     return element
   },
   get loaded() {
-    return !loading
+    return loaded
   },
 })
 
@@ -87,24 +71,21 @@ function suspendPromise<T>(promise: Promise<T>) {
   const index = Symbol()
   let aborted = false
 
-  updatePending(index, {
-    loaded: false,
-  })
+  loading.add(index)
 
   promise
-    .then(() => removePending(index))
+    .then(() => loading.delete(index))
     .catch((error: Error) => {
       if (!aborted) {
-        updatePending(index, {
-          loaded: true,
-          error,
-        })
+        errors.set(index, error)
+        loading.delete(index)
       }
     })
 
   return () => {
-    removePending(index)
     aborted = true
+    errors.delete(index)
+    loading.delete(index)
   }
 }
 
@@ -118,16 +99,14 @@ function suspendStore<T>(
     [store, error ?? readable(undefined)],
     ([store, error]) => {
       if (store !== undefined) {
-        removePending(index)
+        errors.delete(index)
+        loading.delete(index)
       } else if (error) {
-        updatePending(index, {
-          loaded: true,
-          error,
-        })
+        errors.set(index, error)
+        loading.delete(index)
       } else {
-        updatePending(index, {
-          loaded: false,
-        })
+        errors.delete(index)
+        loading.add(index)
       }
     }
   )
@@ -135,7 +114,8 @@ function suspendStore<T>(
 
   return () => {
     unsub()
-    removePending(index)
+    errors.delete(index)
+    loading.delete(index)
   }
 }
 </script>
@@ -143,17 +123,17 @@ function suspendStore<T>(
 {#if isBrowser}
   <div
     bind:this={element}
-    hidden={!!error || loading || list?.status !== STATUS.READY}
+    hidden={!loaded || !!error || list.status !== STATUS.READY}
   >
     {@render children?.(suspend)}
   </div>
 {/if}
 
-{#if list?.status === STATUS.HIDDEN}
+{#if list.status === STATUS.HIDDEN}
   <!-- Hidden -->
 {:else if error}
   {@render renderError?.(error)}
-{:else if loading || list?.status === STATUS.LOADING}
+{:else if !loaded || list.status === STATUS.LOADING}
   {@render renderLoading?.()}
 {/if}
 

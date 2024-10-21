@@ -45,10 +45,10 @@ export function createSuspense(): Suspend {
     error?: Readable<Error | undefined>
   ) {
     effect_runner(() => {
-      if ('subscribe' in data) {
-        return interal_suspend.store(data, error)
-      } else {
+      if ('then' in data) {
         return interal_suspend.promise(data)
+      } else {
+        return interal_suspend.store(data, error)
       }
     })
     return data
