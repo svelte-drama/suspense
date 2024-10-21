@@ -9,8 +9,8 @@ interface Props {
 
 let { album }: Props = $props()
 
-let onLoad: (value: unknown) => void = $state(() => {})
-const loaded = new Promise((resolve) => (onLoad = resolve))
+let onload: (value: unknown) => void = $state(() => {})
+const loaded = new Promise((resolve) => (onload = resolve))
 suspend(loaded)
 
 let src = $derived(album['im:image'][2].label)
@@ -21,7 +21,7 @@ let href = $derived(album.id.label)
 
 <a {href} target="blank">
   <figure>
-    <img onload={onLoad} {src} alt="" />
+    <img {onload} {src} alt="" />
     <figcaption>
       <span class="title">{title}</span>
       <span class="artist">{artist}</span>

@@ -74,13 +74,12 @@ function suspendPromise<T>(promise: Promise<T>) {
   loading.add(index)
 
   promise
-    .then(() => loading.delete(index))
     .catch((error: Error) => {
       if (!aborted) {
         errors.set(index, error)
-        loading.delete(index)
       }
     })
+    .finally(() => loading.delete(index))
 
   return () => {
     aborted = true

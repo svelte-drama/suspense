@@ -1,6 +1,5 @@
 <script>
-import { createSuspense } from '$lib'
-const suspend = createSuspense()
+import { suspend } from '$lib'
 
 function timer() {
   return new Promise((resolve) => {

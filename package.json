@@ -4,7 +4,7 @@
   "description": "Put Svelte in Suspense",
   "license": "0BSD",
   "packageManager": "pnpm@8.11.0",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "sideEffects": false,
   "scripts": {
     "dev": "vite dev",

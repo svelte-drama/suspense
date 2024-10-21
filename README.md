@@ -12,19 +12,9 @@ When requesting asynchronous data, a typical pattern is for a parent component t
 npm install --save @svelte-drama/suspense
 ```
 
-## `createSuspense`
+## `suspend`
 
-Child components need to register what data they depend on. `createSuspense` returns a function to to handle orchestration between this component and its nearest parent `<Suspense>` component.
-
-Because it relies on [getContext](https://svelte.dev/docs#getContext), this must be declared during component initialization.
-
-```js
-import { createSuspense } from '@svelte-drama/suspense'
-
-const suspend = createSuspense()
-```
-
-The resulting function, `suspend`, can be used in to wait for promises or stores.
+Child components need to register what data they depend on. `suspend` returns a function to to handle orchestration between this component and its nearest parent `<Suspense>` component.
 
 ```js
 suspend<T>(data: Promise<T>) => Promise<T>
@@ -45,6 +35,18 @@ suspend.all<T extends unknown[]>(...data) => Promise<{
 ```
 
 Convenience function equivalent to `suspend(Promise.all(data))`.
+
+## `createSuspense`
+
+Because `suspend` relies on [getContext](https://svelte.dev/docs#getContext), it must be declared during component initialization. `createSuspense` can be used to create bind the function in advance, allowing the user to pass references to `suspend` when access to `getContext` or `$effect` would not normally be allowed.
+
+```js
+import { createSuspense } from '@svelte-drama/suspense'
+
+const suspend = createSuspense()
+```
+
+The resulting function, `suspend`, is identical to `suspend` as listed above.
 
 ## `<Suspense>`
 
