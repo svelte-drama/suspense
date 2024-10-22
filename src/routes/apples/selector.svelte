@@ -1,6 +1,8 @@
-<script>
-/** @type {{mode: any}} */
-let { mode = $bindable() } = $props()
+<script lang="ts">
+interface Props {
+  mode: string
+}
+let { mode = $bindable() }: Props = $props()
 </script>
 
 <ul>

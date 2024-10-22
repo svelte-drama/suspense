@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { Suspense } from '$lib'
 import Apple from './apple.svelte'
 </script>

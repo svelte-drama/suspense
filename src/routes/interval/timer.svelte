@@ -1,7 +1,7 @@
 <script lang="ts">
 import { createSuspense } from '$lib'
 
-async function fetchTime() {
+async function fetchTime(): Promise<string> {
   const request = await fetch(
     'https://worldtimeapi.org/api/timezone/America/Chicago'
   )

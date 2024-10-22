@@ -1,6 +1,8 @@
-<script>
-/** @type {{children?: import('svelte').Snippet}} */
-let { children } = $props()
+<script lang="ts">
+interface Props {
+  children: import('svelte').Snippet
+}
+let { children }: Props = $props()
 let refresh = $state(0)
 </script>
 
@@ -10,7 +12,7 @@ let refresh = $state(0)
 </header>
 
 {#key refresh}
-  {@render children?.()}
+  {@render children()}
 {/key}
 
 <style>

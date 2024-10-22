@@ -1,10 +1,12 @@
-<script>
-import Album from './album.svelte'
+<script lang="ts">
+import Album, { type Album as AlbumType } from './album.svelte'
 import AlbumSkeleton from './album-skeleton.svelte'
 import { createSuspense, Suspense, SuspenseList } from '$lib'
 const suspend = createSuspense()
 
-const request = fetch(`https://itunes.apple.com/us/rss/topalbums/limit=50/json`)
+const request: Promise<AlbumType[]> = fetch(
+  `https://itunes.apple.com/us/rss/topalbums/limit=50/json`
+)
   .then((response) => response.json())
   .then((data) => data.feed.entry)
 </script>

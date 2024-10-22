@@ -10,12 +10,12 @@ export type InternalSuspend = {
   store<T>(data: Readable<T>, error?: Readable<Error | undefined>): () => void
 }
 type BaseSuspend = {
-  <T>(data: Promise<T>): Promise<T>
-  <T>(data: Readable<T>, error?: Readable<Error | undefined>): Readable<T>
+  <T extends Promise<any>>(data: T): T
+  <T extends Readable<any>>(data: T, error?: Readable<Error | undefined>): T
 }
 export type Suspend = {
-  <T>(data: Promise<T>): Promise<T>
-  <T>(data: Readable<T>, error?: Readable<Error | undefined>): Readable<T>
+  <T extends Promise<any>>(data: T): T
+  <T extends Readable<any>>(data: T, error?: Readable<Error | undefined>): T
   all<T extends unknown[]>(
     ...data: T
   ): Promise<{

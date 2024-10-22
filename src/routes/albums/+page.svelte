@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import AlbumList from './album-list.svelte'
 import PageLayout from './page-layout.svelte'
 import Loading from './loading.svelte'

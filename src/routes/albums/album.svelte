@@ -1,12 +1,28 @@
+<script lang="ts" module>
+export type Album = {
+  id: {
+    label: string
+  }
+  'im:artist': {
+    label: string
+  }
+  'im:image': {
+    label: string
+  }[]
+  'im:name': {
+    label: string
+  }
+}
+</script>
+
 <script lang="ts">
 import { createSuspense } from '$lib'
 
 const suspend = createSuspense()
 
 interface Props {
-  album: any
+  album: Album
 }
-
 let { album }: Props = $props()
 
 let onload: (value: unknown) => void = $state(() => {})
