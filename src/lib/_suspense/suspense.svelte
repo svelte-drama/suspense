@@ -32,7 +32,7 @@ const loading = new SvelteSet<symbol>()
 
 const error = $derived.by<Error | undefined>(() => {
   if (errors.size) {
-    return errors.entries().next().value
+    return errors.values().next().value
   }
 })
 const loaded = $derived(!loading.size)
