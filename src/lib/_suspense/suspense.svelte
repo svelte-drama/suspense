@@ -16,7 +16,6 @@ interface Props {
   onerror?: (e: Error) => void
   onload?: (element: HTMLElement) => void
 }
-
 let {
   children,
   error: renderError,
@@ -119,22 +118,24 @@ function suspendStore<T>(
 }
 </script>
 
-{#if isBrowser}
-  <div
-    bind:this={element}
-    hidden={!loaded || !!error || list.status !== STATUS.READY}
-  >
-    {@render children?.(suspend)}
-  </div>
-{/if}
+<svelte:boundary failed={renderError} {onerror}>
+  {#if isBrowser}
+    <div
+      bind:this={element}
+      hidden={!loaded || !!error || list.status !== STATUS.READY}
+    >
+      {@render children?.(suspend)}
+    </div>
+  {/if}
 
-{#if list.status === STATUS.HIDDEN}
-  <!-- Hidden -->
-{:else if error}
-  {@render renderError?.(error)}
-{:else if !loaded || list.status === STATUS.LOADING}
-  {@render renderLoading?.()}
-{/if}
+  {#if list.status === STATUS.HIDDEN}
+    <!-- Hidden -->
+  {:else if error}
+    {@render renderError?.(error)}
+  {:else if !loaded || list.status === STATUS.LOADING}
+    {@render renderLoading?.()}
+  {/if}
+</svelte:boundary>
 
 <style>
 div:not([hidden]) {
