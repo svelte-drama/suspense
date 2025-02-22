@@ -59,10 +59,10 @@ export function createSuspense(): Suspend {
     error?: Readable<Error | undefined>
   ): Promise<T> | Readable<T> {
     effectRunner(() => {
-      if ('then' in data) {
-        return interal_suspend.promise(data)
-      } else {
+      if ('subscribe' in data) {
         return interal_suspend.store(data, error)
+      } else {
+        return interal_suspend.promise(data)
       }
     })
     return data
@@ -90,10 +90,10 @@ function base_suspend<T>(
   }
 
   $effect(() => {
-    if ('then' in data) {
-      return interal_suspend.promise(data)
-    } else {
+    if ('subscribe' in data) {
       return interal_suspend.store(data, error)
+    } else {
+      return interal_suspend.promise(data)
     }
   })
   return data
