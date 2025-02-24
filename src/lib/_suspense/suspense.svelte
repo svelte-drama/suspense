@@ -1,4 +1,5 @@
 <script lang="ts">
+import { SvelteMap, SvelteSet } from 'svelte/reactivity'
 import { derived as derivedStore, readable, type Readable } from 'svelte/store'
 import debounce from '$lib/_debounce'
 import {
@@ -7,7 +8,6 @@ import {
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
 import { createSuspense, setContext, type Suspend } from './context.svelte.js'
-import { SvelteMap, SvelteSet } from 'svelte/reactivity'
 
 interface Props {
   children?: import('svelte').Snippet<[Suspend]>
@@ -55,9 +55,6 @@ const registerWithList = getSuspenseListContext()
 setSuspenseListContext()
 
 const list = registerWithList({
-  get element() {
-    return element
-  },
   get loaded() {
     return loaded
   },

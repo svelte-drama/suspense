@@ -1,9 +1,8 @@
 <script lang="ts">
-import { onDestroy } from 'svelte'
+import { onDestroy, tick } from 'svelte'
 import debounce from '$lib/_debounce'
 import { setSuspenseListContext, type RegisterFunction } from './context'
 import { STATUS } from './status'
-import { sortOnDocumentOrder } from './util'
 
 interface Props {
   collapse?: boolean
@@ -15,95 +14,58 @@ interface Props {
 let { collapse = false, final = false, children, onload }: Props = $props()
 
 let element: HTMLElement | undefined = $state()
-let elements: HTMLElement[] | undefined
 let destroyed = false
-let loading = $state(false)
-const watching = new Map<HTMLElement, boolean>()
+
+let watching: { loaded: boolean }[] = $state([])
+let loading_index = $derived.by(() => {
+  const index = watching.findIndex((v) => !v.loaded)
+  return index === -1 ? watching.length : index
+})
+const loaded = $derived(loading_index === watching.length)
+const loaded_item = $state({ loaded: true })
 
 onDestroy(() => {
   destroyed = true
-  watching.clear()
 })
 
-let status = $state<{
-  loaded: Set<HTMLElement>
-  next: HTMLElement | null
-}>({
-  loaded: new Set(),
-  next: null,
-})
-
-const updateNext = debounce(() => {
-  if (!elements) {
-    elements = [...watching.keys()].sort(sortOnDocumentOrder)
-  }
-
-  const index = elements.findIndex((i) => !watching.get(i))
-
-  if (index === -1) {
-    loading = false
-    status = {
-      loaded: new Set(elements),
-      next: null,
-    }
-  } else {
-    loading = true
-    status = {
-      loaded: new Set(elements.slice(0, index)),
-      next: elements[index],
-    }
-  }
-})
-
-let debounced_loading = $state(false)
-const updateIsLoading = debounce((loading: boolean) => {
-  debounced_loading = loading
-  if (!loading && element) {
+// Debounce to prevent dispatching multiple events when requests are chained.
+const dispatchLoaded = debounce(() => {
+  if (loaded && element) {
     onload?.(element)
   }
 })
 $effect(() => {
-  updateIsLoading(loading)
+  if (onload && loaded) dispatchLoaded()
 })
 
 const register = ((data) => {
-  let child_has_been_shown = false
-  let registered = false
-  loading = true
+  let has_been_shown = false
 
-  const { element, loaded } = $derived(data)
-  $effect(() => {
-    if (element) {
-      if (!registered) {
-        registered = true
-        elements = undefined
-      }
-      watching.set(element, loaded)
-      updateNext()
-    }
-  })
+  const index = watching.length
+  watching[index] = data
 
   onDestroy(() => {
-    if (element && !destroyed) {
-      watching.delete(element)
-      elements = undefined
-      updateNext()
-    }
+    if (destroyed) return
+    watching[index] = loaded_item
   })
 
   const child_status = $derived.by(() => {
-    if (!element) {
-      return STATUS.LOADING
-    }
-    if (final && child_has_been_shown) {
+    if (has_been_shown) {
       return STATUS.READY
     }
-    if (status.next === element) {
-      return STATUS.LOADING
-    }
-    if (status.loaded.has(element)) {
-      child_has_been_shown = true
+    if (loading_index > index) {
+      if (final && !has_been_shown) {
+        tick().then(() => {
+          if (data.loaded && loading_index > index) {
+            has_been_shown = true
+            watching[index] = loaded_item
+          }
+        })
+      }
       return STATUS.READY
+    }
+    if (loading_index === index) {
+      return STATUS.LOADING
     }
     return collapse ? STATUS.HIDDEN : STATUS.LOADING
   })
@@ -118,7 +80,7 @@ setSuspenseListContext(register)
 </script>
 
 <div bind:this={element}>
-  {@render children?.(debounced_loading)}
+  {@render children?.(!loaded)}
 </div>
 
 <style>
