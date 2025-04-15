@@ -13,10 +13,7 @@ export type InternalSuspend = {
   promise<T>(data: Promise<T>): () => void
   rune<T>(data: SWRModel<T>): () => void
 }
-export type Suspend = {
-  <T extends Promise<any>>(data: T): T
-  <T extends SWRModel<any>>(data: T): T
-}
+export type Suspend = <T extends SWRModel<any> | Promise<any>>(data: T) => T
 
 const mock = <T>(data: T) => {
   return data
@@ -45,11 +42,7 @@ export function createSuspense(): Suspend {
     }
   }
 
-  function suspend<T>(data: Promise<T>): Promise<T>
-  function suspend<T>(data: SWRModel<T>): SWRModel<T>
-  function suspend<T>(
-    data: Promise<T> | SWRModel<T>
-  ): Promise<T> | SWRModel<T> {
+  function suspend<T extends SWRModel<any> | Promise<any>>(data: T): T {
     effectRunner(() => {
       if ('current' in data) {
         return interal_suspend.rune(data)
@@ -66,11 +59,7 @@ export function setContext(value: InternalSuspend) {
   set(key, value)
 }
 
-export function suspend<T>(data: Promise<T>): Promise<T>
-export function suspend<T>(data: SWRModel<T>): SWRModel<T>
-export function suspend<T>(
-  data: Promise<T> | SWRModel<T>
-): Promise<T> | SWRModel<T> {
+export function suspend<T extends SWRModel<any> | Promise<any>>(data: T): T {
   const interal_suspend = getContext<InternalSuspend | undefined>(key)
   if (!interal_suspend) {
     console.warn('`suspend` called outside of a Suspense boundary')
