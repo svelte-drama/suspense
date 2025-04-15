@@ -1,31 +1,26 @@
 import { getContext, onDestroy, setContext as set } from 'svelte'
-import type { Readable } from 'svelte/store'
 
 // FIXME: Vite is incorrectly running this multiple times in development,
 // once for each package that depends on it.
 const key = Symbol.for('SUSPENSE_CONTEXT')
 
+interface SWRModel<T> {
+  current: T | undefined
+  error?: Error | undefined
+}
+
 export type InternalSuspend = {
   promise<T>(data: Promise<T>): () => void
-  store<T>(data: Readable<T>, error?: Readable<Error | undefined>): () => void
-}
-type BaseSuspend = {
-  <T extends Promise<any>>(data: T): T
-  <T extends Readable<any>>(data: T, error?: Readable<Error | undefined>): T
+  rune<T>(data: SWRModel<T>): () => void
 }
 export type Suspend = {
   <T extends Promise<any>>(data: T): T
-  <T extends Readable<any>>(data: T, error?: Readable<Error | undefined>): T
-  all<T extends unknown[]>(
-    ...data: T
-  ): Promise<{
-    [P in keyof T]: Awaited<T[P]>
-  }>
+  <T extends SWRModel<any>>(data: T): T
 }
 
-const mock = addUtilityFunctions(<T>(data: T) => {
+const mock = <T>(data: T) => {
   return data
-})
+}
 
 export function createSuspense(): Suspend {
   const interal_suspend = getContext<InternalSuspend>(key)
@@ -45,44 +40,37 @@ export function createSuspense(): Suspend {
     if ($effect.tracking()) {
       $effect(fn)
     } else {
-      subscriptions.push(fn())
+      const destroy = $effect.root(fn)
+      subscriptions.push(destroy)
     }
   }
 
   function suspend<T>(data: Promise<T>): Promise<T>
+  function suspend<T>(data: SWRModel<T>): SWRModel<T>
   function suspend<T>(
-    data: Readable<T>,
-    error?: Readable<Error | undefined>
-  ): Readable<T>
-  function suspend<T>(
-    data: Promise<T> | Readable<T>,
-    error?: Readable<Error | undefined>
-  ): Promise<T> | Readable<T> {
+    data: Promise<T> | SWRModel<T>
+  ): Promise<T> | SWRModel<T> {
     effectRunner(() => {
-      if ('subscribe' in data) {
-        return interal_suspend.store(data, error)
+      if ('current' in data) {
+        return interal_suspend.rune(data)
       } else {
         return interal_suspend.promise(data)
       }
     })
     return data
   }
-  return addUtilityFunctions(suspend)
+  return suspend
 }
 
 export function setContext(value: InternalSuspend) {
   set(key, value)
 }
 
-function base_suspend<T>(data: Promise<T>): Promise<T>
-function base_suspend<T>(
-  data: Readable<T>,
-  error?: Readable<Error | undefined>
-): Readable<T>
-function base_suspend<T>(
-  data: Promise<T> | Readable<T>,
-  error?: Readable<Error | undefined>
-): Promise<T> | Readable<T> {
+export function suspend<T>(data: Promise<T>): Promise<T>
+export function suspend<T>(data: SWRModel<T>): SWRModel<T>
+export function suspend<T>(
+  data: Promise<T> | SWRModel<T>
+): Promise<T> | SWRModel<T> {
   const interal_suspend = getContext<InternalSuspend | undefined>(key)
   if (!interal_suspend) {
     console.warn('`suspend` called outside of a Suspense boundary')
@@ -90,20 +78,11 @@ function base_suspend<T>(
   }
 
   $effect(() => {
-    if ('subscribe' in data) {
-      return interal_suspend.store(data, error)
+    if ('current' in data) {
+      return interal_suspend.rune(data)
     } else {
       return interal_suspend.promise(data)
     }
   })
   return data
-}
-export const suspend = addUtilityFunctions(base_suspend)
-
-function addUtilityFunctions(suspend: BaseSuspend): Suspend {
-  const all = ((...args) => {
-    const promise = Promise.all(args)
-    return suspend(promise)
-  }) satisfies Suspend['all']
-  return Object.assign(suspend, { all })
 }

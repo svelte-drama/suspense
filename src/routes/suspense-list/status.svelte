@@ -1,15 +1,12 @@
 <script lang="ts">
-import type { Readable } from 'svelte/store'
-
 interface Props {
-  store: Readable<boolean | undefined>
+  model: { current: boolean }
 }
-
-let { store }: Props = $props()
+let { model }: Props = $props()
 </script>
 
 <li>
-  {#if $store === true}
+  {#if model.current === true}
     ✔️
   {:else}
     ⌛

@@ -7,6 +7,10 @@ import Timer from './timer.svelte'
 <Suspense>
   <Timer />
 
+  {#snippet error()}
+    ERROR
+  {/snippet}
+
   {#snippet loading()}
     Fetching...
   {/snippet}

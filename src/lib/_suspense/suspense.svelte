@@ -1,7 +1,6 @@
 <script lang="ts">
-import { SvelteMap, SvelteSet } from 'svelte/reactivity'
-import { derived as derivedStore, readable, type Readable } from 'svelte/store'
-import debounce from '$lib/_debounce'
+import { tick } from 'svelte'
+import { SvelteMap } from 'svelte/reactivity'
 import {
   getSuspenseListContext,
   setSuspenseListContext,
@@ -26,31 +25,47 @@ let {
 
 const isBrowser = typeof window !== 'undefined'
 
-const errors = new SvelteMap<symbol, Error>()
-const loading = new SvelteSet<symbol>()
+let loading = 0
+let loaded = $state(true)
 
+const errors = new SvelteMap<symbol, Error>()
 const error = $derived.by<Error | undefined>(() => {
   if (errors.size) {
     return errors.values().next().value
   }
 })
-const loaded = $derived(!loading.size)
 
-// Debounce to prevent dispatching multiple events when requests are chained.
-const dispatchLoaded = debounce(() => {
-  if (loaded && element) {
-    onload?.(element)
+function createSubscriber() {
+  let stopped = false
+  if (loading === 0) {
+    loaded = false
+  }
+  loading++
+
+  return () => {
+    if (stopped) return
+    stopped = true
+    tick().then(() => {
+      loading--
+      if (loading === 0) {
+        loaded = true
+      }
+    })
+  }
+}
+
+let element: HTMLDivElement | undefined = $state()
+$effect(() => {
+  if (onload && loaded && element) {
+    onload(element)
   }
 })
 $effect(() => {
-  if (onload && loaded) dispatchLoaded()
+  if (onerror && error) {
+    onerror(error)
+  }
 })
 
-$effect(() => {
-  if (onerror && error) onerror(error)
-})
-
-let element: HTMLDivElement | undefined = $state()
 const registerWithList = getSuspenseListContext()
 setSuspenseListContext()
 
@@ -60,57 +75,41 @@ const list = registerWithList({
   },
 })
 
-setContext({ promise: suspendPromise, store: suspendStore })
+setContext({ promise: suspendPromise, rune: suspendRune })
 const suspend = createSuspense()
 
 function suspendPromise<T>(promise: Promise<T>) {
+  let stopped = false
+  const unsub = createSubscriber()
+
   const index = Symbol()
-  let aborted = false
-
-  loading.add(index)
-
   promise
     .catch((error: Error) => {
-      if (!aborted) {
+      if (!stopped) {
         errors.set(index, error)
       }
     })
-    .finally(() => loading.delete(index))
+    .finally(unsub)
 
   return () => {
-    aborted = true
+    stopped = true
     errors.delete(index)
-    loading.delete(index)
+    unsub()
   }
 }
 
-function suspendStore<T>(
-  store: Readable<T>,
-  error?: Readable<Error | undefined>
-) {
-  const index = Symbol()
-
-  const combined = derivedStore(
-    [store, error ?? readable(undefined)],
-    ([store, error]) => {
-      if (store !== undefined) {
-        errors.delete(index)
-        loading.delete(index)
-      } else if (error) {
-        errors.set(index, error)
-        loading.delete(index)
-      } else {
-        errors.delete(index)
-        loading.add(index)
-      }
+function suspendRune<T>(data: { current: T | undefined; error?: Error }) {
+  if (data.current !== undefined) {
+    // Pass
+    return () => {}
+  } else if (data.error) {
+    const index = Symbol()
+    errors.set(index, data.error)
+    return () => {
+      errors.delete(index)
     }
-  )
-  const unsub = combined.subscribe(() => {})
-
-  return () => {
-    unsub()
-    errors.delete(index)
-    loading.delete(index)
+  } else {
+    return createSubscriber()
   }
 }
 </script>

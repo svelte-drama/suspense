@@ -1,18 +1,19 @@
 <script lang="ts">
-import { readable } from 'svelte/store'
 import List from './list.svelte'
 import Status from './status.svelte'
 
-const OPTIONS = [undefined, true, true]
-function createStore() {
-  return readable<undefined | boolean>(undefined, (set) => {
+const OPTIONS = [false, true, true]
+function createModel() {
+  let current: boolean = $state(false)
+
+  $effect(() => {
     let timer: ReturnType<typeof setTimeout>
 
     function update() {
       const timeout = 1500
-      const value = OPTIONS[Math.floor(Math.random() * 3)]
+      const value = OPTIONS[Math.floor(Math.random() * OPTIONS.length)]
       timer = setTimeout(() => {
-        set(value)
+        current = value
         update()
       }, timeout)
     }
@@ -20,35 +21,41 @@ function createStore() {
     update()
     return () => clearInterval(timer)
   })
+
+  return {
+    get current() {
+      return current
+    },
+  }
 }
 
-const stores = [
-  createStore(),
-  createStore(),
-  createStore(),
-  createStore(),
-  createStore(),
+const models = [
+  createModel(),
+  createModel(),
+  createModel(),
+  createModel(),
+  createModel(),
 ]
 </script>
 
 <h1>Stores</h1>
 <ul>
-  {#each stores as store}
-    <Status {store} />
+  {#each models as model}
+    <Status {model} />
   {/each}
 </ul>
 
 <h2>Suspense List</h2>
-<List collapse={false} final={false} {stores} />
+<List collapse={false} final={false} {models} />
 
 <h2>Suspense List w/ Collapse</h2>
-<List collapse={true} final={false} {stores} />
+<List collapse={true} final={false} {models} />
 
 <h2>Suspense List w/ Final</h2>
-<List collapse={false} final={true} {stores} />
+<List collapse={false} final={true} {models} />
 
 <h2>Suspense List w/ Collapse & Final</h2>
-<List collapse={true} final={true} {stores} />
+<List collapse={true} final={true} {models} />
 
 <style>
 ul {

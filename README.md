@@ -17,24 +17,16 @@ npm install --save @svelte-drama/suspense
 Child components need to register what data they depend on. `suspend` returns a function to to handle orchestration between this component and its nearest parent `<Suspense>` component.
 
 ```js
-suspend<T>(data: Promise<T>) => Promise<T>
+suspend<T extends { current: any, error?: Error }>(data: T) => T
+```
+
+Wrap a model using runes. `<Suspense>` will consider this resolved as long as `current` resolves to not `undefined`. If `error` is present, `<Suspense>` will display the error state as long as `current` is undefined and `error` is not.
+
+```js
+suspend<T extends Promise<any>>(data: T) => T
 ```
 
 Wrap a promise. This returns a promise, allowing it to be used as part of a promise chain. The containing `<Suspense>` component will display its `loading` state until the promise is resolved. If the promise is rejected, it will instead show the `error` state.
-
-```js
-suspend<T>(data: Readable<T>, error?: Readable<Error | undefined>) => Readable<T>
-```
-
-Wrap a store. `<Suspense>` will consider this resolved as long as `data` resolves to not `undefined`. If `error` is passed in, `<Suspense>` will display the error state as long as `data` is undefined and `error` is not.
-
-```js
-suspend.all<T extends unknown[]>(...data) => Promise<{
-  [P in keyof T]: Awaited<T[P]>
-}>
-```
-
-Convenience function equivalent to `suspend(Promise.all(data))`.
 
 ## `createSuspense`
 
@@ -64,6 +56,7 @@ Two events are availabe:
 ```svelte
 <script>
 import { createSuspense, Suspense } from '@svelte-drama/suspense'
+
 const suspend = createSuspense()
 
 const MyComponent = import('./my-component.svelte').then((m) => m.default)
@@ -133,8 +126,9 @@ export let posts
 
 ```svelte
 <script>
-import getData from './get-data.js'
 import Suspense, { createSuspense } from '@svelte-drama/suspense'
+import getData from './get-data.js'
+
 const suspend = createSuspense()
 const request = getData()
 </script>
@@ -150,8 +144,9 @@ This, however, will work as it looks:
 
 ```svelte
 <script>
-import getData from './get-data.js'
 import Suspense from '@svelte-drama/suspense'
+import getData from './get-data.js'
+
 const request = getData()
 </script>
 

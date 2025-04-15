@@ -7,19 +7,18 @@ import Status from './status.svelte'
 interface Props {
   collapse: boolean
   final: boolean
-  stores: Readable<boolean | undefined>[]
+  models: { current: boolean }[]
 }
-
-let { collapse, final, stores }: Props = $props()
+let { collapse, final, models }: Props = $props()
 </script>
 
 <SuspenseList {collapse} {final}>
   <ul>
-    {#each stores as store}
+    {#each models as model}
       <li>
         <Suspense>
           {#snippet children(suspend)}
-            <Status store={suspend(store)} />
+            <Status model={suspend(model)} />
           {/snippet}
           {#snippet loading()}
             📦
