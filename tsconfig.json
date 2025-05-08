@@ -3,6 +3,8 @@
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Bundler",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,

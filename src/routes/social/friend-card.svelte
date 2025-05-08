@@ -1,7 +1,6 @@
 <script>
-import { createSuspense } from '$lib'
+import { suspend } from '$lib'
 import { getResource } from './api.js'
-const suspend = createSuspense()
 
 let friend = getResource().friend()
 let posts = getResource().posts()

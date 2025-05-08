@@ -1,5 +1,5 @@
 <script lang="ts">
-import { createSuspense } from '$lib'
+import { suspend } from '$lib'
 
 async function fetchTime(): Promise<string> {
   const request = await fetch(
@@ -9,7 +9,6 @@ async function fetchTime(): Promise<string> {
   return response.datetime
 }
 
-const suspend = createSuspense()
 let data = $state(fetchTime())
 $effect(() => {
   const interval = setInterval(() => {

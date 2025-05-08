@@ -2,9 +2,9 @@
 import List from './list.svelte'
 import Status from './status.svelte'
 
-const OPTIONS = [false, true, true]
+const OPTIONS = [undefined, true, true] as const
 function createModel() {
-  let current: boolean = $state(false)
+  let current: true | undefined = $state(undefined)
 
   $effect(() => {
     let timer: ReturnType<typeof setTimeout>
@@ -41,7 +41,7 @@ const models = [
 <h1>Stores</h1>
 <ul>
   {#each models as model}
-    <Status {model} />
+    <Status state={model.current} />
   {/each}
 </ul>
 

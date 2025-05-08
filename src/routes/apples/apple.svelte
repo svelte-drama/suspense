@@ -9,6 +9,6 @@ function timer() {
 }
 </script>
 
-{#await suspend(timer()) then _}
+{#await suspend(timer())}
   🍎
 {/await}

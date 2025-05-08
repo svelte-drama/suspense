@@ -1,8 +1,7 @@
 <script>
-import { createSuspense } from '$lib'
+import { suspend } from '$lib'
 import { getResource } from './api.js'
 import Img from './img.svelte'
-const suspend = createSuspense()
 
 const friends = getResource().friends()
 const friend_id = getResource().friend_id

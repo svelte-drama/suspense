@@ -1,26 +1,25 @@
 <script lang="ts">
 import { tick } from 'svelte'
-import { SvelteMap } from 'svelte/reactivity'
 import {
   getSuspenseListContext,
   setSuspenseListContext,
 } from '$lib/_suspense-list/context'
 import { STATUS } from '$lib/_suspense-list/status'
-import { createSuspense, setContext, type Suspend } from './context.svelte.js'
+import { setContext } from './context.svelte.js'
 
 interface Props {
-  children?: import('svelte').Snippet<[Suspend]>
-  error?: import('svelte').Snippet<[Error]>
+  children?: import('svelte').Snippet
+  failed?: import('svelte').Snippet<[Error, () => void]>
   loading?: import('svelte').Snippet
-  onerror?: (e: Error) => void
+  onerror?: (e: Error, reset: () => void) => void
   onload?: (element: HTMLElement) => void
 }
 let {
   children,
-  error: renderError,
+  failed: renderError,
   loading: renderLoading,
   onload,
-  onerror,
+  onerror: parentOnError,
 }: Props = $props()
 
 const isBrowser = typeof window !== 'undefined'
@@ -28,12 +27,12 @@ const isBrowser = typeof window !== 'undefined'
 let loading = 0
 let loaded = $state(true)
 
-const errors = new SvelteMap<symbol, Error>()
-const error = $derived.by<Error | undefined>(() => {
-  if (errors.size) {
-    return errors.values().next().value
+let async_error: null | Error = $state(null)
+function getAsyncError() {
+  if (async_error) {
+    throw async_error
   }
-})
+}
 
 function createSubscriber() {
   let stopped = false
@@ -60,11 +59,6 @@ $effect(() => {
     onload(element)
   }
 })
-$effect(() => {
-  if (onerror && error) {
-    onerror(error)
-  }
-})
 
 const registerWithList = getSuspenseListContext()
 setSuspenseListContext()
@@ -75,61 +69,72 @@ const list = registerWithList({
   },
 })
 
-setContext({ promise: suspendPromise, rune: suspendRune })
-const suspend = createSuspense()
+setContext(suspend)
+function suspend<T>(data: T) {
+  $effect(() => {
+    if (data === undefined) {
+      return createSubscriber()
+    } else if (isPromise(data)) {
+      const unsub = createSubscriber()
+      let stopped = false
 
-function suspendPromise<T>(promise: Promise<T>) {
-  let stopped = false
-  const unsub = createSubscriber()
+      data
+        .catch((e: Error) => {
+          if (stopped) return
+          async_error = e
+        })
+        .finally(unsub)
 
-  const index = Symbol()
-  promise
-    .catch((error: Error) => {
-      if (!stopped) {
-        errors.set(index, error)
+      return () => {
+        stopped = true
+        unsub()
       }
-    })
-    .finally(unsub)
+    }
+  })
 
-  return () => {
-    stopped = true
-    errors.delete(index)
-    unsub()
-  }
+  return data
 }
 
-function suspendRune<T>(data: { current: T | undefined; error?: Error }) {
-  if (data.current !== undefined) {
-    // Pass
-    return () => {}
-  } else if (data.error) {
-    const index = Symbol()
-    errors.set(index, data.error)
-    return () => {
-      errors.delete(index)
-    }
-  } else {
-    return createSubscriber()
-  }
+function onerror(error: Error, reset: () => void) {
+  loaded = true
+  parentOnError?.(error, () => {
+    async_error = null
+    reset()
+  })
+}
+
+function isPromise(x: unknown): x is Promise<any> {
+  return (
+    !!x && typeof x === 'object' && 'then' in x && typeof x.then === 'function'
+  )
 }
 </script>
 
-<svelte:boundary failed={renderError} {onerror}>
+<svelte:boundary {onerror}>
+  {getAsyncError()}
+
   {#if isBrowser}
     <div
       bind:this={element}
-      hidden={!loaded || !!error || list.status !== STATUS.READY}
+      hidden={!loaded || !!async_error || list.status !== STATUS.READY}
     >
-      {@render children?.(suspend)}
+      {@render children?.()}
     </div>
   {/if}
 
   {#if list.status === STATUS.HIDDEN}
     <!-- Hidden -->
-  {:else if error}
-    {@render renderError?.(error)}
   {:else if !loaded || list.status === STATUS.LOADING}
     {@render renderLoading?.()}
+  {/if}
+
+  {#if renderError}
+    {#snippet failed(error, reset)}
+      {@render renderError?.(error as Error, () => {
+        async_error = null
+        reset()
+      })}
+    {/snippet}
   {/if}
 </svelte:boundary>
 

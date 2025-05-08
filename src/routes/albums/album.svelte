@@ -16,9 +16,7 @@ export type Album = {
 </script>
 
 <script lang="ts">
-import { createSuspense } from '$lib'
-
-const suspend = createSuspense()
+import { suspend } from '$lib'
 
 interface Props {
   album: Album

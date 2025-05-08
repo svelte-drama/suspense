@@ -1,14 +1,10 @@
 <script lang="ts">
 interface Props {
-  model: { current: boolean }
+  state: true | undefined
 }
-let { model }: Props = $props()
+let { state }: Props = $props()
 </script>
 
 <li>
-  {#if model.current === true}
-    ✔️
-  {:else}
-    ⌛
-  {/if}
+  {state ? '✔️' : '⌛'}
 </li>

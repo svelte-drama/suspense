@@ -9,12 +9,12 @@ export function getResource() {
   return getContext(CONTEXT)
 }
 
-export function setResource(friend_id, friend_id_store) {
+export function setResource(friend_id: number, friend_id_store) {
   const posts = get(`/posts/${friend_id}/posts?_limit=${rand(4, 4)}`, 1000)
   const friend = get(`/users/${friend_id}`, 500).then(setAvatar)
 
   const resource = {
-    comments(post_id) {
+    comments(post_id: number) {
       return get(`/posts/${post_id}/comments?_limit=${rand(1, 5)}`, 1500)
     },
     friend: () => friend,
@@ -26,7 +26,7 @@ export function setResource(friend_id, friend_id_store) {
   return resource
 }
 
-async function get(url, timeout = 0) {
+async function get(url: string, timeout = 0) {
   const response = await fetch(`https://jsonplaceholder.typicode.com` + url)
   const json = await response.json()
   await new Promise((resolve) => {
@@ -35,7 +35,7 @@ async function get(url, timeout = 0) {
   return json
 }
 
-function rand(start, range) {
+function rand(start: number, range: number) {
   return start + Math.floor(Math.random() * range)
 }
 

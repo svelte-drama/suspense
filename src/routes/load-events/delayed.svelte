@@ -1,6 +1,5 @@
 <script lang="ts">
-import { createSuspense } from '$lib'
-const suspend = createSuspense()
+import { suspend } from '$lib'
 
 suspend(
   new Promise((resolve) => {
