@@ -128,14 +128,12 @@ function isPromise(x: unknown): x is Promise<any> {
     {@render renderLoading?.()}
   {/if}
 
-  {#if renderError}
-    {#snippet failed(error, reset)}
-      {@render renderError?.(error as Error, () => {
-        async_error = null
-        reset()
-      })}
-    {/snippet}
-  {/if}
+  {#snippet failed(error, reset)}
+    {@render renderError?.(error as Error, () => {
+      async_error = null
+      reset()
+    })}
+  {/snippet}
 </svelte:boundary>
 
 <style>
